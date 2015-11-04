@@ -110,6 +110,14 @@ module FlavourSaver
                   helpers = registered_helpers
                 end
       helpers = helpers.merge(locals)
+
+      # Tilt wants OpenStructs, but we commonly use hashes
+      # This will ensure that all hashes are converted at the time of use,
+      # so that even nested hashes behave as they did with handlebars.rb
+      if context.is_a? Hash
+        context = OpenStruct.new context
+      end
+
       Decorator.new(helpers, context)
     end
 
