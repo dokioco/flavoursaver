@@ -63,7 +63,7 @@ module FlavourSaver
       :ELSE
     end
 
-    rule /([A-Za-z]\w*)/, :expression do |name|
+    rule /([a-zA-Z0-9_-]*)/, :expression do |name|
       [ :IDENT, name ]
     end
 
