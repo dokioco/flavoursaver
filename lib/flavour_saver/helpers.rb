@@ -28,6 +28,7 @@ module FlavourSaver
       end
 
       def unless(falsy,&b)
+        falsy = false if falsy.respond_to?(:size) && (falsy.size == 0)
         self.if(!falsy,&b)
       end
 
