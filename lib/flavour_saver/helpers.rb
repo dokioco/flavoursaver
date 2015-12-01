@@ -8,6 +8,8 @@ module FlavourSaver
       end
 
       def each(collection)
+        return unless collection.respond_to?(:each)
+
         r = []
         count = 0
         collection.each do |element|
