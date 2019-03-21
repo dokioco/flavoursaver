@@ -2,6 +2,11 @@ require "flavour_saver/version"
 require 'tilt'
 
 module FlavourSaver
+  class UnknownNodeTypeException < StandardError; end
+  class UnknownContextException < StandardError; end
+  class InappropriateUseOfElseException < StandardError; end
+  class UndefinedPrivateVariableException < StandardError; end
+  class UnknownHelperException < RuntimeError; end
 
   autoload :Lexer,          'flavour_saver/lexer'
   autoload :Parser,         'flavour_saver/parser'

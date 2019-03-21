@@ -1,13 +1,7 @@
 require 'cgi'
 
 module FlavourSaver
-  UnknownNodeTypeException          = Class.new(StandardError)
-  UnknownContextException           = Class.new(StandardError)
-  InappropriateUseOfElseException   = Class.new(StandardError)
-  UndefinedPrivateVariableException = Class.new(StandardError)
-  UnknownHelperException            = Class.new(RuntimeError)
   class Runtime
-
     attr_accessor :context, :parent, :ast
 
     def self.run(ast, context, locals={}, helpers=[])
