@@ -188,11 +188,11 @@ describe FlavourSaver::Lexer do
       subject { FlavourSaver::Lexer.lex "asdf { asdf {} { { {{ hello }} }" }
 
       it 'has tokens in the correct order' do
-        subject.map(&:type).should == [:OUT, :EXPRST, :WHITE, :IDENT, :WHITE, :EXPRE, :OUT, :EOS]
+        subject.map(&:type).should == [:OUT, :EXPRST, :WHITE, :IDENT, :EXPRE, :OUT, :EOS]
       end
 
       it 'has correct tokens' do
-        subject.map(&:value).should == ["asdf { asdf {} { { ", nil, nil, "hello", nil, nil, " }", nil]
+        subject.map(&:value).should == ["asdf { asdf {} { { ", nil, nil, "hello", nil, " }", nil]
       end
     end
 

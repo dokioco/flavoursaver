@@ -56,7 +56,7 @@ module FlavourSaver
       :TEXPRE
     end
 
-    rule /}}/, :expression do
+    rule /\s*}}/, :expression do
       pop_state
       :EXPRE
     end
