@@ -6,6 +6,10 @@ module FlavourSaver
 
     # DEFAULT
 
+    rule /{{\s*(else|\^)\s*}}/, :default do
+      :EXPRELSE
+    end
+
     rule /{{{\s*/, :default do
       push_state :expression
       :TEXPRST

@@ -53,15 +53,10 @@ module FlavourSaver
     end
 
     production(:block_expression) do
-      clause('expr_bl_start template expr_else template expr_bl_end') { |e0,e1,_,e3,e2| BlockExpressionNodeWithElse.new([e0], e1,e2,e3) }
+      clause('expr_bl_start template EXPRELSE template expr_bl_end') { |e0,e1,_,e3,e2| BlockExpressionNodeWithElse.new([e0], e1,e2,e3) }
       clause('expr_bl_start template expr_bl_end') { |e0,e1,e2| BlockExpressionNode.new([e0],e1,e2) }
-      clause('expr_bl_inv_start template expr_else template expr_bl_end') { |e0,e1,_,e3,e2| BlockExpressionNodeWithElse.new([e0], e2,e2,e1) }
+      clause('expr_bl_inv_start template EXPRELSE template expr_bl_end') { |e0,e1,_,e3,e2| BlockExpressionNodeWithElse.new([e0], e2,e2,e1) }
       clause('expr_bl_inv_start template expr_bl_end') { |e0,e1,e2| BlockExpressionNodeWithElse.new([e0],TemplateNode.new([]),e2,e1) }
-    end
-
-    production(:expr_else) do
-      clause('EXPRST ELSE EXPRE') { |_,_,_| }
-      clause('EXPRSTHAT EXPRE') { |_,_| }
     end
 
     production(:expr) do

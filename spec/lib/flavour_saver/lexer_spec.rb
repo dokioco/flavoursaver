@@ -67,7 +67,7 @@ describe FlavourSaver::Lexer do
       subject { FlavourSaver::Lexer.lex '{{else}}' }
 
       it 'has tokens in the correct order' do
-        subject.map(&:type).should == [ :EXPRST, :ELSE, :EXPRE, :EOS ]
+        subject.map(&:type).should == [ :EXPRELSE, :EOS ]
       end
     end
 
