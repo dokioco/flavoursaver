@@ -15,6 +15,31 @@ module FlavourSaver
       push_state :comment
     end
 
+    rule /{{#/, :default do
+      push_state :expression
+      :EXPRSTHASH
+    end
+
+    rule /{{\^/, :default do
+      push_state :expression
+      :EXPRSTHAT
+    end
+
+    rule /{{\//, :default do
+      push_state :expression
+      :EXPRSTFWSL
+    end
+
+    rule /{{&/, :default do
+      push_state :expression
+      :EXPRSTAMP
+    end
+
+    rule /{{\s*>/, :default do # the original FlavourSaver allows a space between {{ and > so this regex does too
+      push_state :expression
+      :EXPRSTGT
+    end
+
     rule /{{/, :default do
       push_state :expression
       :EXPRST
@@ -48,28 +73,12 @@ module FlavourSaver
       :DOTDOT
     end
 
-    rule /#/, :expression do
-      :HASH
-    end
-
     rule /\//, :expression do
       :FWSL
     end
 
-    rule /&/, :expression do
-      :AMP
-    end
-
-    rule /\^/, :expression do
-      :HAT
-    end
-
     rule /@/, :expression do
       :AT
-    end
-
-    rule />/, :expression do
-      :GT
     end
 
     rule /\./, :expression do

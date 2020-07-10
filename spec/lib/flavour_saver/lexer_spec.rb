@@ -147,9 +147,9 @@ describe FlavourSaver::Lexer do
       describe '{{#foo}}{{bar}}{{/foo}}' do
         it 'has tokens in the correct order' do
           subject.map(&:type).should == [
-            :EXPRST, :HASH, :IDENT, :EXPRE,
+            :EXPRSTHASH, :IDENT, :EXPRE,
             :EXPRST, :IDENT, :EXPRE,
-            :EXPRST, :FWSL, :IDENT, :EXPRE,
+            :EXPRSTFWSL, :IDENT, :EXPRE,
             :EOS
           ]
         end

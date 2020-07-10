@@ -46,10 +46,10 @@ module FlavourSaver
     end
 
     production(:partial) do
-      clause('EXPRST WHITE? GT WHITE? STRING WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
-      clause('EXPRST WHITE? GT WHITE? ident_or_literal WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
-      clause('EXPRST WHITE? GT WHITE? ident_or_literal WHITE? call WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,e1,nil) }
-      clause('EXPRST WHITE? GT WHITE? ident_or_literal WHITE? lit WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,[],e1) }
+      clause('EXPRSTGT WHITE? STRING WHITE? EXPRE') { |_,_,e,_,_| PartialNode.new(e,[]) }
+      clause('EXPRSTGT WHITE? ident_or_literal WHITE? EXPRE') { |_,_,e,_,_| PartialNode.new(e,[]) }
+      clause('EXPRSTGT WHITE? ident_or_literal WHITE? call WHITE? EXPRE') { |_,_,e0,_,e1,_,_| PartialNode.new(e0,e1,nil) }
+      clause('EXPRSTGT WHITE? ident_or_literal WHITE? lit WHITE? EXPRE') { |_,_,e0,_,e1,_,_| PartialNode.new(e0,[],e1) }
     end
 
     production(:block_expression) do
@@ -61,7 +61,7 @@ module FlavourSaver
 
     production(:expr_else) do
       clause('EXPRST WHITE? ELSE WHITE? EXPRE') { |_,_,_,_,_| }
-      clause('EXPRST WHITE? HAT WHITE? EXPRE') { |_,_,_,_,_| }
+      clause('EXPRSTHAT WHITE? EXPRE') { |_,_,_| }
     end
 
     production(:expr) do
@@ -70,21 +70,21 @@ module FlavourSaver
 
     production(:expr_safe) do
       clause('TEXPRST expression_contents TEXPRE') { |_,e,_| e }
-      clause('EXPRST AMP expression_contents EXPRE') { |_,_,e,_| e }
+      clause('EXPRSTAMP expression_contents EXPRE') { |_,e,_| e }
     end
 
     production(:expr_bl_start) do
-      clause('EXPRST HASH WHITE? IDENT WHITE? EXPRE') { |_,_,_,e,_,_| push_block CallNode.new(e,[]) }
-      clause('EXPRST HASH WHITE? IDENT WHITE arguments WHITE? EXPRE') { |_,_,_,e,_,a,_,_| push_block CallNode.new(e,a) }
+      clause('EXPRSTHASH WHITE? IDENT WHITE? EXPRE') { |_,_,e,_,_| push_block CallNode.new(e,[]) }
+      clause('EXPRSTHASH WHITE? IDENT WHITE arguments WHITE? EXPRE') { |_,_,e,_,a,_,_| push_block CallNode.new(e,a) }
     end
 
     production(:expr_bl_inv_start) do
-      clause('EXPRST HAT WHITE? IDENT WHITE? EXPRE') { |_,_,_,e,_,_| push_block CallNode.new(e,[]) }
-      clause('EXPRST HAT WHITE? IDENT WHITE arguments WHITE? EXPRE') { |_,_,_,e,_,a,_,_| push_block CallNode.new(e,a) }
+      clause('EXPRSTHAT WHITE? IDENT WHITE? EXPRE') { |_,_,e,_,_| push_block CallNode.new(e,[]) }
+      clause('EXPRSTHAT WHITE? IDENT WHITE arguments WHITE? EXPRE') { |_,_,e,_,a,_,_| push_block CallNode.new(e,a) }
     end
 
     production(:expr_bl_end) do
-      clause('EXPRST FWSL WHITE? IDENT WHITE? EXPRE') { |_,_,_,e,_,_| pop_block CallNode.new(e,[]) }
+      clause('EXPRSTFWSL WHITE? IDENT WHITE? EXPRE') { |_,_,e,_,_| pop_block CallNode.new(e,[]) }
     end
 
     production(:expression_contents) do
