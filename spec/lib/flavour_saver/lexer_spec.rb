@@ -121,7 +121,7 @@ describe FlavourSaver::Lexer do
       subject { FlavourSaver::Lexer.lex "{{! WAT}}" }
 
       it 'has tokens in the correct order' do
-        subject.map(&:type).should == [ :EXPRST, :BANG, :COMMENT, :EXPRE, :EOS ]
+        subject.map(&:type).should == [ :COMMENT, :EOS ]
       end
     end
 

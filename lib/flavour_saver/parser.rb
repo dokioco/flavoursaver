@@ -41,6 +41,7 @@ module FlavourSaver
     production(:template_item) do
       clause('output') { |e| e }
       clause('expression') { |e| e }
+      clause('COMMENT') { |e| CommentNode.new(e) }
     end
 
     production(:output) do
@@ -50,7 +51,6 @@ module FlavourSaver
     production(:expression) do
       clause('block_expression') { |e| e }
       clause('expr')          { |e| ExpressionNode.new(e) }
-      clause('expr_comment')  { |e| CommentNode.new(e) }
       clause('expr_safe')     { |e| SafeExpressionNode.new(e) }
       clause('partial')       { |e| e }
     end
@@ -79,10 +79,6 @@ module FlavourSaver
 
     production(:expr) do
       clause('EXPRST expression_contents EXPRE') { |_,e,_| e }
-    end
-
-    production(:expr_comment) do
-      clause('EXPRST BANG COMMENT EXPRE') { |_,_,e,_| e }
     end
 
     production(:expr_safe) do

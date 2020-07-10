@@ -11,6 +11,10 @@ module FlavourSaver
       :TEXPRST
     end
 
+    rule /{{!/, :default do
+      push_state :comment
+    end
+
     rule /{{/, :default do
       push_state :expression
       :EXPRST
@@ -68,11 +72,6 @@ module FlavourSaver
       :EQ
     end
 
-    rule /\!/, :expression do
-      push_state :comment
-      :BANG
-    end
-
     rule /"/, :expression do
       push_state :string
     end
@@ -115,8 +114,11 @@ module FlavourSaver
 
     # COMMENT
 
-    rule /([^}}]*)/, :comment do |comment|
+    rule /}}/, :comment do
       pop_state
+    end
+
+    rule /[^}]+|}/m, :comment do |comment|
       [ :COMMENT, comment ]
     end
 
