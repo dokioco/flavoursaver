@@ -6,7 +6,7 @@ module FlavourSaver
 
     # DEFAULT
 
-    rule /{{{/, :default do
+    rule /{{{\s*/, :default do
       push_state :expression
       :TEXPRST
     end
@@ -30,7 +30,7 @@ module FlavourSaver
       :EXPRSTFWSL
     end
 
-    rule /{{&/, :default do
+    rule /{{&\s*/, :default do
       push_state :expression
       :EXPRSTAMP
     end
@@ -40,7 +40,7 @@ module FlavourSaver
       :EXPRSTGT
     end
 
-    rule /{{/, :default do
+    rule /{{\s*/, :default do
       push_state :expression
       :EXPRST
     end
@@ -51,7 +51,7 @@ module FlavourSaver
 
     # EXPRESSION
 
-    rule /}}}/, :expression do
+    rule /\s*}}}/, :expression do
       pop_state
       :TEXPRE
     end

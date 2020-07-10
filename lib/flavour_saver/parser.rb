@@ -60,7 +60,7 @@ module FlavourSaver
     end
 
     production(:expr_else) do
-      clause('EXPRST WHITE? ELSE EXPRE') { |_,_,_,_| }
+      clause('EXPRST ELSE EXPRE') { |_,_,_| }
       clause('EXPRSTHAT EXPRE') { |_,_| }
     end
 
@@ -88,8 +88,8 @@ module FlavourSaver
     end
 
     production(:expression_contents) do
-      clause('WHITE? call WHITE?') { |_,e,_| e }
-      clause('WHITE? local WHITE?') { |_,e,_| [e] }
+      clause('call') { |e| e }
+      clause('local') { |e| [e] }
     end
 
     production(:call) do
