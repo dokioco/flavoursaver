@@ -2,7 +2,6 @@ require 'rltk'
 
 module FlavourSaver
   class Lexer < RLTK::Lexer
-
     rule /{{{/, :default do
       push_state :expression
       :TEXPRST
@@ -133,7 +132,7 @@ module FlavourSaver
       :EXPRE
     end
 
-    rule /.*?(?={{|\z)/m, :default do |output|
+    rule /[^{]+|{/m, :default do |output|
       [ :OUT, output ]
     end
   end
