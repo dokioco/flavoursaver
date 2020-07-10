@@ -129,7 +129,7 @@ describe FlavourSaver::Lexer do
       subject { FlavourSaver::Lexer.lex "{{../foo}}" }
 
       it 'has tokens in the correct order' do
-        subject.map(&:type).should == [:EXPRST, :DOT, :DOT, :FWSL, :IDENT, :EXPRE, :EOS]
+        subject.map(&:type).should == [:EXPRST, :DOTDOTSLASH, :IDENT, :EXPRE, :EOS]
       end
     end
 
@@ -181,6 +181,18 @@ describe FlavourSaver::Lexer do
 
       it 'has tokens in the correct order' do
         subject.map(&:type).should == [:OUT,:EOS]
+      end
+    end
+
+    describe 'Mishmash of curlys etc' do
+      subject { FlavourSaver::Lexer.lex "asdf { asdf {} { { {{ hello }} }" }
+
+      it 'has tokens in the correct order' do
+        subject.map(&:type).should == [:OUT, :OUT, :OUT, :OUT, :OUT, :OUT, :OUT, :OUT, :OUT, :EXPRST, :WHITE, :IDENT, :WHITE, :EXPRE, :OUT, :EOS]
+      end
+
+      it 'has correct tokens' do
+        subject.map(&:value).should == ["asdf ", "{", " asdf ", "{", "} ", "{", " ", "{", " ", nil, nil, "hello", nil, nil, " }", nil]
       end
     end
   end

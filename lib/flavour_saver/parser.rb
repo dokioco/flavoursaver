@@ -28,24 +28,20 @@ module FlavourSaver
     right :EQ
 
     production(:template) do
-      clause('template_items') { |i| TemplateNode.new(i) }
+      clause('template_item+') { |i| TemplateNode.new(i) }
       clause('') { TemplateNode.new([]) }
     end
 
     # empty_list(:template_items, [:output, :expression], 'WHITE?')
-    production(:template_items) do
-      clause('template_item') { |i| [i] }
-      clause('template_items template_item') { |i0,i1| i0 << i1 }
-    end
+    # production(:template_items) do
+    #   clause('template_item+') { |i| i }
+    #   # clause('template_items template_item') { |i0,i1| i0 << i1 }
+    # end
 
     production(:template_item) do
-      clause('output') { |e| e }
+      clause('OUT') { |o| OutputNode.new(o) }
       clause('expression') { |e| e }
       clause('COMMENT') { |e| CommentNode.new(e) }
-    end
-
-    production(:output) do
-      clause('OUT') { |o| OutputNode.new(o) }
     end
 
     production(:expression) do
@@ -172,8 +168,8 @@ module FlavourSaver
     end
 
     production(:backtrack) do
-      clause('DOT DOT FWSL') { |_,_,_| 1 }
-      clause('backtrack DOT DOT FWSL') { |i,_,_,_| i += 1 }
+      clause('DOTDOTSLASH') { |_,| 1 }
+      clause('backtrack DOTDOTSLASH') { |i,_| i += 1 }
     end
 
     finalize

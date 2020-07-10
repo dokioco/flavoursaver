@@ -40,6 +40,14 @@ module FlavourSaver
       :WHITE
     end
 
+    rule /\.\.\//, :expression do
+      :DOTDOTSLASH
+    end
+
+    rule /\.\./, :expression do
+      :DOTDOT
+    end
+
     rule /#/, :expression do
       :HASH
     end
