@@ -2,6 +2,8 @@ require 'rltk'
 
 module FlavourSaver
   class Lexer < RLTK::Lexer
+    match_first
+
     # DEFAULT
 
     rule /{{{/, :default do
@@ -19,6 +21,20 @@ module FlavourSaver
     end
 
     # EXPRESSION
+
+    rule /}}}/, :expression do
+      pop_state
+      :TEXPRE
+    end
+
+    rule /}}/, :expression do
+      pop_state
+      :EXPRE
+    end
+
+    rule /\s+/, :expression do
+      :WHITE
+    end
 
     rule /#/, :expression do
       :HASH
@@ -44,8 +60,29 @@ module FlavourSaver
       :GT
     end
 
-    rule /([1-9][0-9]*(\.[0-9]+)?)/, :expression do |n|
-      [ :NUMBER, n ]
+    rule /\./, :expression do
+      :DOT
+    end
+
+    rule /\=/, :expression do
+      :EQ
+    end
+
+    rule /\!/, :expression do
+      push_state :comment
+      :BANG
+    end
+
+    rule /"/, :expression do
+      push_state :string
+    end
+
+    rule /'/, :expression do
+      push_state :s_string
+    end
+
+    rule /\[/, :expression do
+      push_state :segment_literal
     end
 
     rule /true/, :expression do |i|
@@ -56,29 +93,8 @@ module FlavourSaver
       [ :BOOL, false ]
     end
 
-    rule /\!/, :expression do
-      push_state :comment
-      :BANG
-    end
-
     rule /else/, :expression do
       :ELSE
-    end
-
-    rule /\./, :expression do
-      :DOT
-    end
-
-    rule /\=/, :expression do
-      :EQ
-    end
-
-    rule /"/, :expression do
-      push_state :string
-    end
-
-    rule /'/, :expression do
-      push_state :s_string
     end
 
     rule /[A-Za-z_\-][A-Za-z0-9_\-]*/, :expression do |name|
@@ -93,22 +109,8 @@ module FlavourSaver
       end
     end
 
-    rule /\[/, :expression do
-      push_state :segment_literal
-    end
-
-    rule /\s+/, :expression do
-      :WHITE
-    end
-
-    rule /}}}/, :expression do
-      pop_state
-      :TEXPRE
-    end
-
-    rule /}}/, :expression do
-      pop_state
-      :EXPRE
+    rule /([1-9][0-9]*(\.[0-9]+)?)/, :expression do |n|
+      [ :NUMBER, n ]
     end
 
     # COMMENT
@@ -120,32 +122,32 @@ module FlavourSaver
 
     # STRING
 
-    rule /(\\"|[^"])*/, :string do |str|
-      [ :STRING, str ]
-    end
-
     rule /"/, :string do
       pop_state
     end
 
-    # SINGLE-QUOTED STRING
-
-    rule /(\\'|[^'])*/, :s_string do |str|
-      [ :S_STRING, str ]
+    rule /(\\"|[^"])*/, :string do |str|
+      [ :STRING, str ]
     end
+
+    # SINGLE-QUOTED STRING
 
     rule /'/, :s_string do
       pop_state
     end
 
-    # SEGMENT LITERAL
-
-    rule /([^\]]+)/, :segment_literal do |l|
-      [ :LITERAL, l ]
+    rule /(\\'|[^'])*/, :s_string do |str|
+      [ :S_STRING, str ]
     end
+
+    # SEGMENT LITERAL
 
     rule /]/, :segment_literal do
       pop_state
+    end
+
+    rule /([^\]]+)/, :segment_literal do |l|
+      [ :LITERAL, l ]
     end
   end
 end
