@@ -8,19 +8,17 @@ module FlavourSaver
     class UnbalancedBlockError < StandardError; end
 
     class Environment < RLTK::Parser::Environment
-      def push_block block
-        blocks.push(block.name)
-        block
-      end
+      def make_block_node(test, contents, alternate, closer_name)
+        raise UnbalancedBlockError, "Unable to find matching opening for {{/#{closer_name}}}" if closer_name != test.name
 
-      def pop_block block
-        b = blocks.pop
-        raise UnbalancedBlockError, "Unable to find matching opening for {{/#{block.name}}}" if b != block.name
-        block
-      end
+        contents ||= TemplateNode.new([])
 
-      def blocks
-        @blocks ||= []
+        # closer == test, we reuse that call node
+        if alternate
+          BlockExpressionNodeWithElse.new([test], contents, test, alternate)
+        else
+          BlockExpressionNode.new([test], contents, test)
+        end
       end
     end
 
@@ -53,10 +51,10 @@ module FlavourSaver
     end
 
     production(:block_expression) do
-      clause('expr_bl_start template EXPRELSE template expr_bl_end') { |e0,e1,_,e3,e2| BlockExpressionNodeWithElse.new([e0], e1,e2,e3) }
-      clause('expr_bl_start template expr_bl_end') { |e0,e1,e2| BlockExpressionNode.new([e0],e1,e2) }
-      clause('expr_bl_inv_start template EXPRELSE template expr_bl_end') { |e0,e1,_,e3,e2| BlockExpressionNodeWithElse.new([e0], e2,e2,e1) }
-      clause('expr_bl_inv_start template expr_bl_end') { |e0,e1,e2| BlockExpressionNodeWithElse.new([e0],TemplateNode.new([]),e2,e1) }
+      clause('expr_bl_start template EXPRELSE template expr_bl_end') { |test, contents, _, alternate, closer_name| make_block_node(test, contents, alternate, closer_name) }
+      clause('expr_bl_start template expr_bl_end') { |test, contents, closer_name| make_block_node(test, contents, nil, closer_name) }
+      clause('expr_bl_inv_start template EXPRELSE template expr_bl_end') { |test, alternate, _, contents, closer_name| make_block_node(test, contents, alternate, closer_name) }
+      clause('expr_bl_inv_start template expr_bl_end') { |test, alternate, closer_name| make_block_node(test, nil, alternate, closer_name) }
     end
 
     production(:expr) do
@@ -69,17 +67,17 @@ module FlavourSaver
     end
 
     production(:expr_bl_start) do
-      clause('EXPRSTHASH IDENT EXPRE') { |_,e,_| push_block CallNode.new(e,[]) }
-      clause('EXPRSTHASH IDENT WHITE arguments EXPRE') { |_,e,_,a,_| push_block CallNode.new(e,a) }
+      clause('EXPRSTHASH IDENT EXPRE') { |_,e,_| CallNode.new(e,[]) }
+      clause('EXPRSTHASH IDENT WHITE arguments EXPRE') { |_,e,_,a,_| CallNode.new(e,a) }
     end
 
     production(:expr_bl_inv_start) do
-      clause('EXPRSTHAT IDENT EXPRE') { |_,e,_| push_block CallNode.new(e,[]) }
-      clause('EXPRSTHAT IDENT WHITE arguments EXPRE') { |_,e,_,a,_| push_block CallNode.new(e,a) }
+      clause('EXPRSTHAT IDENT EXPRE') { |_,e,_| CallNode.new(e,[]) }
+      clause('EXPRSTHAT IDENT WHITE arguments EXPRE') { |_,e,_,a,_| CallNode.new(e,a) }
     end
 
     production(:expr_bl_end) do
-      clause('EXPRSTFWSL IDENT EXPRE') { |_,e,_| pop_block CallNode.new(e,[]) }
+      clause('EXPRSTFWSL IDENT EXPRE') { |_,e,_| e }
     end
 
     production(:expression_contents) do
