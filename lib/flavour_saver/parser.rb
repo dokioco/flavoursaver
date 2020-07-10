@@ -46,10 +46,10 @@ module FlavourSaver
     end
 
     production(:partial) do
-      clause('EXPRSTGT WHITE? STRING EXPRE') { |_,_,e,_| PartialNode.new(e,[]) }
-      clause('EXPRSTGT WHITE? ident_or_literal EXPRE') { |_,_,e,_| PartialNode.new(e,[]) }
-      clause('EXPRSTGT WHITE? ident_or_literal WHITE? call EXPRE') { |_,_,e0,_,e1,_| PartialNode.new(e0,e1,nil) }
-      clause('EXPRSTGT WHITE? ident_or_literal WHITE? lit EXPRE') { |_,_,e0,_,e1,_| PartialNode.new(e0,[],e1) }
+      clause('EXPRSTGT STRING EXPRE') { |_,e,_| PartialNode.new(e,[]) }
+      clause('EXPRSTGT ident_or_literal EXPRE') { |_,e,_| PartialNode.new(e,[]) }
+      clause('EXPRSTGT ident_or_literal WHITE? call EXPRE') { |_,e0,_,e1,_| PartialNode.new(e0,e1,nil) }
+      clause('EXPRSTGT ident_or_literal WHITE? lit EXPRE') { |_,e0,_,e1,_| PartialNode.new(e0,[],e1) }
     end
 
     production(:block_expression) do
@@ -69,17 +69,17 @@ module FlavourSaver
     end
 
     production(:expr_bl_start) do
-      clause('EXPRSTHASH WHITE? IDENT EXPRE') { |_,_,e,_| push_block CallNode.new(e,[]) }
-      clause('EXPRSTHASH WHITE? IDENT WHITE arguments EXPRE') { |_,_,e,_,a,_| push_block CallNode.new(e,a) }
+      clause('EXPRSTHASH IDENT EXPRE') { |_,e,_| push_block CallNode.new(e,[]) }
+      clause('EXPRSTHASH IDENT WHITE arguments EXPRE') { |_,e,_,a,_| push_block CallNode.new(e,a) }
     end
 
     production(:expr_bl_inv_start) do
-      clause('EXPRSTHAT WHITE? IDENT EXPRE') { |_,_,e,_| push_block CallNode.new(e,[]) }
-      clause('EXPRSTHAT WHITE? IDENT WHITE arguments EXPRE') { |_,_,e,_,a,_| push_block CallNode.new(e,a) }
+      clause('EXPRSTHAT IDENT EXPRE') { |_,e,_| push_block CallNode.new(e,[]) }
+      clause('EXPRSTHAT IDENT WHITE arguments EXPRE') { |_,e,_,a,_| push_block CallNode.new(e,a) }
     end
 
     production(:expr_bl_end) do
-      clause('EXPRSTFWSL WHITE? IDENT EXPRE') { |_,_,e,_| pop_block CallNode.new(e,[]) }
+      clause('EXPRSTFWSL IDENT EXPRE') { |_,e,_| pop_block CallNode.new(e,[]) }
     end
 
     production(:expression_contents) do

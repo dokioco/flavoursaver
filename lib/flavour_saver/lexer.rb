@@ -19,17 +19,17 @@ module FlavourSaver
       push_state :comment
     end
 
-    rule /{{#/, :default do
+    rule /{{#\s*/, :default do
       push_state :expression
       :EXPRSTHASH
     end
 
-    rule /{{\^/, :default do
+    rule /{{\^\s*/, :default do
       push_state :expression
       :EXPRSTHAT
     end
 
-    rule /{{\//, :default do
+    rule /{{\/\s*/, :default do
       push_state :expression
       :EXPRSTFWSL
     end
@@ -39,7 +39,7 @@ module FlavourSaver
       :EXPRSTAMP
     end
 
-    rule /{{\s*>/, :default do # the original FlavourSaver allows a space between {{ and > so this regex does too
+    rule /{{\s*>\s*/, :default do # the original FlavourSaver allows a space between {{ and > so this regex does too
       push_state :expression
       :EXPRSTGT
     end
