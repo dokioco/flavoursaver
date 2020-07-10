@@ -28,18 +28,12 @@ module FlavourSaver
     right :EQ
 
     production(:template) do
-      clause('template_item+') { |i| TemplateNode.new(i) }
+      clause('template_item+') { |items| TemplateNode.new(items) }
       clause('') { TemplateNode.new([]) }
     end
 
-    # empty_list(:template_items, [:output, :expression], 'WHITE?')
-    # production(:template_items) do
-    #   clause('template_item+') { |i| i }
-    #   # clause('template_items template_item') { |i0,i1| i0 << i1 }
-    # end
-
     production(:template_item) do
-      clause('OUT') { |o| OutputNode.new(o) }
+      clause('OUT+') { |outputs| OutputNode.new(outputs.join) }
       clause('expression') { |e| e }
       clause('COMMENT') { |e| CommentNode.new(e) }
     end
@@ -53,12 +47,9 @@ module FlavourSaver
 
     production(:partial) do
       clause('EXPRST WHITE? GT WHITE? STRING WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
-      clause('EXPRST WHITE? GT WHITE? IDENT WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
-      clause('EXPRST WHITE? GT WHITE? IDENT WHITE? call WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,e1,nil) }
-      clause('EXPRST WHITE? GT WHITE? IDENT WHITE? lit WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,[],e1) }
-      clause('EXPRST WHITE? GT WHITE? LITERAL WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
-      clause('EXPRST WHITE? GT WHITE? LITERAL WHITE? call WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,e1,nil) }
-      clause('EXPRST WHITE? GT WHITE? LITERAL WHITE? lit WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,[],e1) }
+      clause('EXPRST WHITE? GT WHITE? ident_or_literal WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
+      clause('EXPRST WHITE? GT WHITE? ident_or_literal WHITE? call WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,e1,nil) }
+      clause('EXPRST WHITE? GT WHITE? ident_or_literal WHITE? lit WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,[],e1) }
     end
 
     production(:block_expression) do
@@ -117,12 +108,12 @@ module FlavourSaver
       clause('hash') { |e| [e] }
     end
 
-    nonempty_list(:argument_list, [:object_path,:lit], :WHITE)
+    nonempty_list(:argument_list, [:object_path, :lit], :WHITE)
 
     production(:lit) do
       clause('string') { |e| e }
       clause('number') { |e| e }
-      clause('boolean') { |e| e }
+      clause('BOOL') { |b| b ? TrueNode.new(true) : FalseNode.new(false) }
     end
 
     production(:string) do
@@ -132,10 +123,6 @@ module FlavourSaver
 
     production(:number) do
       clause('NUMBER') { |n| NumberNode.new(n) }
-    end
-
-    production(:boolean) do
-      clause('BOOL') { |b| b ? TrueNode.new(true) : FalseNode.new(false) }
     end
 
     production(:hash) do
@@ -158,18 +145,13 @@ module FlavourSaver
 
     production(:object) do
       clause('IDENT') { |e| CallNode.new(e, []) }
-      clause('LITERAL') { |e| LiteralCallNode.new(e, []) }
-      clause('parent_call') { |e| e }
+      clause('LITERAL') { |e| LiteralCallNode.new(e, []) } # this is why we can't use ident_or_literal here
+      clause('DOTDOTSLASH+ ident_or_literal') { |backtracks, name| ParentCallNode.new(name, [], backtracks.length) }
     end
 
-    production(:parent_call) do
-      clause('backtrack IDENT') { |i,e| ParentCallNode.new(e,[],i) }
-      clause('backtrack LITERAL') { |i,e| ParentCallNode.new(e,[],i) }
-    end
-
-    production(:backtrack) do
-      clause('DOTDOTSLASH') { |_,| 1 }
-      clause('backtrack DOTDOTSLASH') { |i,_| i += 1 }
+    production(:ident_or_literal) do
+      clause('IDENT') { |e| e }
+      clause('LITERAL') { |e| e }
     end
 
     finalize
