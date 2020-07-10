@@ -20,7 +20,7 @@ module FlavourSaver
       :EXPRST
     end
 
-    rule /[^{]+|{/m, :default do |output|
+    rule /([^{]|{(?!{))+/m, :default do |output|
       [ :OUT, output ]
     end
 
@@ -126,7 +126,7 @@ module FlavourSaver
       pop_state
     end
 
-    rule /[^}]+|}/m, :comment do |comment|
+    rule /([^}]|}(?!}))+/m, :comment do |comment|
       [ :COMMENT, comment ]
     end
 

@@ -33,9 +33,9 @@ module FlavourSaver
     end
 
     production(:template_item) do
-      clause('OUT+') { |outputs| OutputNode.new(outputs.join) }
+      clause('OUT') { |output_string| OutputNode.new(output_string) }
       clause('expression') { |e| e }
-      clause('COMMENT') { |e| CommentNode.new(e) }
+      clause('COMMENT') { |comment_string| CommentNode.new(comment_string) }
     end
 
     production(:expression) do
