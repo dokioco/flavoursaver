@@ -2,6 +2,8 @@ require 'rltk'
 
 module FlavourSaver
   class Lexer < RLTK::Lexer
+    # DEFAULT
+
     rule /{{{/, :default do
       push_state :expression
       :TEXPRST
@@ -11,6 +13,12 @@ module FlavourSaver
       push_state :expression
       :EXPRST
     end
+
+    rule /[^{]+|{/m, :default do |output|
+      [ :OUT, output ]
+    end
+
+    # EXPRESSION
 
     rule /#/, :expression do
       :HASH
@@ -53,11 +61,6 @@ module FlavourSaver
       :BANG
     end
 
-    rule /([^}}]*)/, :comment do |comment|
-      pop_state
-      [ :COMMENT, comment ]
-    end
-
     rule /else/, :expression do
       :ELSE
     end
@@ -74,24 +77,8 @@ module FlavourSaver
       push_state :string
     end
 
-    rule /(\\"|[^"])*/, :string do |str|
-      [ :STRING, str ]
-    end
-
-    rule /"/, :string do
-      pop_state
-    end
-
     rule /'/, :expression do
       push_state :s_string
-    end
-
-    rule /(\\'|[^'])*/, :s_string do |str|
-      [ :S_STRING, str ]
-    end
-
-    rule /'/, :s_string do
-      pop_state
     end
 
     rule /[A-Za-z_\-][A-Za-z0-9_\-]*/, :expression do |name|
@@ -110,14 +97,6 @@ module FlavourSaver
       push_state :segment_literal
     end
 
-    rule /([^\]]+)/, :segment_literal do |l|
-      [ :LITERAL, l ]
-    end
-
-    rule /]/, :segment_literal do
-      pop_state
-    end
-
     rule /\s+/, :expression do
       :WHITE
     end
@@ -132,8 +111,41 @@ module FlavourSaver
       :EXPRE
     end
 
-    rule /[^{]+|{/m, :default do |output|
-      [ :OUT, output ]
+    # COMMENT
+
+    rule /([^}}]*)/, :comment do |comment|
+      pop_state
+      [ :COMMENT, comment ]
+    end
+
+    # STRING
+
+    rule /(\\"|[^"])*/, :string do |str|
+      [ :STRING, str ]
+    end
+
+    rule /"/, :string do
+      pop_state
+    end
+
+    # SINGLE-QUOTED STRING
+
+    rule /(\\'|[^'])*/, :s_string do |str|
+      [ :S_STRING, str ]
+    end
+
+    rule /'/, :s_string do
+      pop_state
+    end
+
+    # SEGMENT LITERAL
+
+    rule /([^\]]+)/, :segment_literal do |l|
+      [ :LITERAL, l ]
+    end
+
+    rule /]/, :segment_literal do
+      pop_state
     end
   end
 end
