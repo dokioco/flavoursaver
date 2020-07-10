@@ -63,10 +63,6 @@ module FlavourSaver
       :ELSE
     end
 
-    rule /([a-zA-Z0-9_-]*)/, :expression do |name|
-      [ :IDENT, name ]
-    end
-
     rule /\./, :expression do
       :DOT
     end
@@ -99,11 +95,16 @@ module FlavourSaver
       pop_state
     end
 
-    # Handlebars allows methods with hyphens in them. Ruby doesn't, so
-    # we'll assume you're trying to index the context with the identifier
-    # and call the result.
-    rule /([A-Za-z][a-z0-9_-]*[a-z0-9])/, :expression do |str|
-      [ :LITERAL, str ]
+    rule /[A-Za-z_\-][A-Za-z0-9_\-]*/, :expression do |name|
+      # Handlebars allows methods with hyphens in them. Ruby doesn't, so
+      # we'll assume you're trying to index the context with the identifier
+      # and call the result.
+
+      if name.include?('-')
+        [ :LITERAL, name ]
+      else
+        [ :IDENT, name ]
+      end
     end
 
     rule /\[/, :expression do
