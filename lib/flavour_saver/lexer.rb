@@ -109,10 +109,6 @@ module FlavourSaver
       [ :BOOL, false ]
     end
 
-    rule /else/, :expression do
-      :ELSE
-    end
-
     rule /[A-Za-z_\-][A-Za-z0-9_\-]*/, :expression do |name|
       # Handlebars allows methods with hyphens in them. Ruby doesn't, so
       # we'll assume you're trying to index the context with the identifier
