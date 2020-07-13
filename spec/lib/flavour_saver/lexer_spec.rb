@@ -207,5 +207,53 @@ describe FlavourSaver::Lexer do
         subject.map(&:value).should == ["asdf ", " alskjd } } alksdjf ", " asdf", nil]
       end
     end
+
+    describe 'Zero-length comment' do
+      subject { FlavourSaver::Lexer.lex "asdf {{!}} asdf" }
+
+      it 'has tokens in the correct order' do
+        subject.map(&:type).should == [:OUT, :OUT, :EOS]
+      end
+
+      it 'has correct tokens' do
+        subject.map(&:value).should == ["asdf ", " asdf", nil]
+      end
+    end
+
+    describe 'Zero-length string' do
+      subject { FlavourSaver::Lexer.lex "asdf {{\"\"}} asdf" }
+
+      it 'has tokens in the correct order' do
+        subject.map(&:type).should == [:OUT, :EXPRST, :STRING, :EXPRE, :OUT, :EOS]
+      end
+
+      it 'has correct tokens' do
+        subject.map(&:value).should == ["asdf ", nil, '', nil, " asdf", nil]
+      end
+    end
+
+    describe 'Zero-length single-quote string' do
+      subject { FlavourSaver::Lexer.lex "asdf {{''}} asdf" }
+
+      it 'has tokens in the correct order' do
+        subject.map(&:type).should == [:OUT, :EXPRST, :S_STRING, :EXPRE, :OUT, :EOS]
+      end
+
+      it 'has correct tokens' do
+        subject.map(&:value).should == ["asdf ", nil, '', nil, " asdf", nil]
+      end
+    end
+
+    describe 'Zero-length literal' do
+      subject { FlavourSaver::Lexer.lex "asdf {{[]}} asdf" }
+
+      it 'has tokens in the correct order' do
+        subject.map(&:type).should == [:OUT, :EXPRST, :LITERAL, :EXPRE, :OUT, :EOS]
+      end
+
+      it 'has correct tokens' do
+        subject.map(&:value).should == ["asdf ", nil, '', nil, " asdf", nil]
+      end
+    end
   end
 end

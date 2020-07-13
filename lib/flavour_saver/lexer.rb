@@ -89,12 +89,24 @@ module FlavourSaver
       :EQ
     end
 
+    rule /""/, :expression do # special rule because empty doesn't trigger token otherwise
+      [ :STRING, '' ]
+    end
+
     rule /"/, :expression do
       push_state :string
     end
 
+    rule /''/, :expression do # special rule because empty doesn't trigger token otherwise
+      [ :S_STRING, '' ]
+    end
+
     rule /'/, :expression do
       push_state :s_string
+    end
+
+    rule /\[\]/, :expression do # special rule because empty doesn't trigger token otherwise
+      [ :LITERAL, '' ]
     end
 
     rule /\[/, :expression do
@@ -141,7 +153,7 @@ module FlavourSaver
       pop_state
     end
 
-    rule /(\\"|[^"])*/, :string do |str|
+    rule /(\\"|[^"])+/, :string do |str|
       [ :STRING, str ]
     end
 
@@ -151,7 +163,7 @@ module FlavourSaver
       pop_state
     end
 
-    rule /(\\'|[^'])*/, :s_string do |str|
+    rule /(\\'|[^'])+/, :s_string do |str|
       [ :S_STRING, str ]
     end
 
@@ -161,7 +173,7 @@ module FlavourSaver
       pop_state
     end
 
-    rule /([^\]]+)/, :segment_literal do |l|
+    rule /[^\]]+/, :segment_literal do |l|
       [ :LITERAL, l ]
     end
   end
