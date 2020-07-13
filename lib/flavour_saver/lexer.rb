@@ -73,10 +73,6 @@ module FlavourSaver
       :DOTDOTSLASH
     end
 
-    rule /\.\./, :expression do
-      :DOTDOT
-    end
-
     rule /\//, :expression do
       :FWSL
     end
