@@ -122,15 +122,8 @@ module FlavourSaver
     end
 
     rule /[A-Za-z_\-][A-Za-z0-9_\-]*/, :expression do |name|
-      # Handlebars allows methods with hyphens in them. Ruby doesn't, so
-      # we'll assume you're trying to index the context with the identifier
-      # and call the result.
-
-      if name.include?('-')
-        [ :LITERAL, name ]
-      else
-        [ :IDENT, name ]
-      end
+      # this is a divergence from FlavourSaver by Dokio -- even the dashed things are treated as methods
+      [ :IDENT, name ]
     end
 
     rule /([1-9][0-9]*(\.[0-9]+)?)/, :expression do |n|

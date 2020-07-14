@@ -216,27 +216,27 @@ describe FlavourSaver do
     describe 'paths with hyphens' do
       describe '{{foo-bar}}' do
         let(:template) { "{{foo-bar}}" }
+        let(:context) { { :"foo-bar" => "baz" } }
 
         it 'paths can contain hyphens (-)' do
-          context.should_receive(:[]).with('foo-bar').and_return('baz')
           subject.should == 'baz'
         end
       end
 
       describe '{{foo.foo-bar}}' do
         let(:template) { "{{foo.foo-bar}}" }
+        let(:context) { { :foo => { :"foo-bar" => "baz" } } }
 
         it 'paths can contain hyphens (-)' do
-          context.stub_chain(:foo, :[]).with('foo-bar').and_return(proc { 'baz' })
           subject.should == 'baz'
         end
       end
 
       describe '{{foo/foo-bar}}' do
         let(:template) { "{{foo/foo-bar}}" }
+        let(:context) { { :foo => { :"foo-bar" => "baz" } } }
 
         it 'paths can contain hyphens (-)' do
-          context.stub_chain(:foo, :[]).with('foo-bar').and_return('baz')
           subject.should == 'baz'
         end
       end
