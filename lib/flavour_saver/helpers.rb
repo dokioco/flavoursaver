@@ -1,4 +1,5 @@
 require 'delegate'
+require 'ostruct'
 
 module FlavourSaver
   module Helpers
@@ -126,4 +127,3 @@ module FlavourSaver
 
   end
 end
-

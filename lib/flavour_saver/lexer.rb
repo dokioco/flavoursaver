@@ -2,69 +2,83 @@ require 'rltk'
 
 module FlavourSaver
   class Lexer < RLTK::Lexer
+    match_first
 
-    rule /{{{/, :default do
+    # DEFAULT
+
+    rule /{{\s*(else|\^)\s*}}/, :default do
+      :EXPRELSE
+    end
+
+    rule /{{{\s*/, :default do
       push_state :expression
       :TEXPRST
     end
 
-    rule /{{/, :default do
+    rule /{{!/, :default do
+      push_state :comment
+    end
+
+    rule /{{#\s*/, :default do
+      push_state :expression
+      :EXPRSTHASH
+    end
+
+    rule /{{\^\s*/, :default do
+      push_state :expression
+      :EXPRSTHAT
+    end
+
+    rule /{{\/\s*/, :default do
+      push_state :expression
+      :EXPRSTFWSL
+    end
+
+    rule /{{&\s*/, :default do
+      push_state :expression
+      :EXPRSTAMP
+    end
+
+    rule /{{\s*>\s*/, :default do # the original FlavourSaver allows a space between {{ and > so this regex does too
+      push_state :expression
+      :EXPRSTGT
+    end
+
+    rule /{{\s*/, :default do
       push_state :expression
       :EXPRST
     end
 
-    rule /#/, :expression do
-      :HASH
+    rule /([^{]|{(?!{))+/m, :default do |output|
+      [ :OUT, output ]
+    end
+
+    # EXPRESSION
+
+    rule /\s*}}}/, :expression do
+      pop_state
+      :TEXPRE
+    end
+
+    rule /\s*}}/, :expression do
+      pop_state
+      :EXPRE
+    end
+
+    rule /\s+/, :expression do
+      :WHITE
+    end
+
+    rule /\.\.\//, :expression do
+      :DOTDOTSLASH
     end
 
     rule /\//, :expression do
       :FWSL
     end
 
-    rule /&/, :expression do
-      :AMP
-    end
-
-    rule /\^/, :expression do
-      :HAT
-    end
-
     rule /@/, :expression do
       :AT
-    end
-
-    rule />/, :expression do
-      :GT
-    end
-
-    rule /([1-9][0-9]*(\.[0-9]+)?)/, :expression do |n|
-      [ :NUMBER, n ]
-    end
-
-    rule /true/, :expression do |i|
-      [ :BOOL, true ]
-    end
-
-    rule /false/, :expression do |i|
-      [ :BOOL, false ]
-    end
-
-    rule /\!/, :expression do
-      push_state :comment
-      :BANG
-    end
-
-    rule /([^}}]*)/, :comment do |comment|
-      pop_state
-      [ :COMMENT, comment ]
-    end
-
-    rule /else/, :expression do
-      :ELSE
-    end
-
-    rule /([a-zA-Z0-9_-]*)/, :expression do |name|
-      [ :IDENT, name ]
     end
 
     rule /\./, :expression do
@@ -75,65 +89,85 @@ module FlavourSaver
       :EQ
     end
 
+    rule /""/, :expression do # special rule because empty doesn't trigger token otherwise
+      [ :STRING, '' ]
+    end
+
     rule /"/, :expression do
       push_state :string
     end
 
-    rule /(\\"|[^"])*/, :string do |str|
-      [ :STRING, str ]
-    end
-
-    rule /"/, :string do
-      pop_state
+    rule /''/, :expression do # special rule because empty doesn't trigger token otherwise
+      [ :S_STRING, '' ]
     end
 
     rule /'/, :expression do
       push_state :s_string
     end
 
-    rule /(\\'|[^'])*/, :s_string do |str|
-      [ :S_STRING, str ]
-    end
-
-    rule /'/, :s_string do
-      pop_state
-    end
-
-    # Handlebars allows methods with hyphens in them. Ruby doesn't, so
-    # we'll assume you're trying to index the context with the identifier
-    # and call the result.
-    rule /([A-Za-z][a-z0-9_-]*[a-z0-9])/, :expression do |str|
-      [ :LITERAL, str ]
+    rule /\[\]/, :expression do # special rule because empty doesn't trigger token otherwise
+      [ :LITERAL, '' ]
     end
 
     rule /\[/, :expression do
       push_state :segment_literal
     end
 
-    rule /([^\]]+)/, :segment_literal do |l|
-      [ :LITERAL, l ]
+    rule /true/, :expression do |i|
+      [ :BOOL, true ]
     end
+
+    rule /false/, :expression do |i|
+      [ :BOOL, false ]
+    end
+
+    rule /[A-Za-z_\-][A-Za-z0-9_\-]*/, :expression do |name|
+      # this is a divergence from FlavourSaver by Dokio -- even the dashed things are treated as methods
+      [ :IDENT, name ]
+    end
+
+    rule /([1-9][0-9]*(\.[0-9]+)?)/, :expression do |n|
+      [ :NUMBER, n ]
+    end
+
+    # COMMENT
+
+    rule /}}/, :comment do
+      pop_state
+    end
+
+    rule /([^}]|}(?!}))+/m, :comment do |comment|
+      [ :COMMENT, comment ]
+    end
+
+    # STRING
+
+    rule /"/, :string do
+      pop_state
+    end
+
+    rule /(\\"|[^"])+/, :string do |str|
+      [ :STRING, str ]
+    end
+
+    # SINGLE-QUOTED STRING
+
+    rule /'/, :s_string do
+      pop_state
+    end
+
+    rule /(\\'|[^'])+/, :s_string do |str|
+      [ :S_STRING, str ]
+    end
+
+    # SEGMENT LITERAL
 
     rule /]/, :segment_literal do
       pop_state
     end
 
-    rule /\s+/, :expression do
-      :WHITE
-    end
-
-    rule /}}}/, :expression do
-      pop_state
-      :TEXPRE
-    end
-
-    rule /}}/, :expression do
-      pop_state
-      :EXPRE
-    end
-
-    rule /.*?(?={{|\z)/m, :default do |output|
-      [ :OUT, output ]
+    rule /[^\]]+/, :segment_literal do |l|
+      [ :LITERAL, l ]
     end
   end
 end

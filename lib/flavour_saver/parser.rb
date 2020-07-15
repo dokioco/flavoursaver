@@ -8,19 +8,17 @@ module FlavourSaver
     class UnbalancedBlockError < StandardError; end
 
     class Environment < RLTK::Parser::Environment
-      def push_block block
-        blocks.push(block.name)
-        block
-      end
+      def make_block_node(test, contents, alternate, closer_name)
+        raise UnbalancedBlockError, "Unable to find matching opening for {{/#{closer_name}}}" if closer_name != test.name
 
-      def pop_block block
-        b = blocks.pop
-        raise UnbalancedBlockError, "Unable to find matching opening for {{/#{block.name}}}" if b != block.name
-        block
-      end
+        contents ||= TemplateNode.new([])
 
-      def blocks
-        @blocks ||= []
+        # closer == test, we reuse that call node
+        if alternate
+          BlockExpressionNodeWithElse.new([test], contents, test, alternate)
+        else
+          BlockExpressionNode.new([test], contents, test)
+        end
       end
     end
 
@@ -28,85 +26,63 @@ module FlavourSaver
     right :EQ
 
     production(:template) do
-      clause('template_items') { |i| TemplateNode.new(i) }
+      clause('template_item+') { |items| TemplateNode.new(items) }
       clause('') { TemplateNode.new([]) }
     end
 
-    # empty_list(:template_items, [:output, :expression], 'WHITE?')
-    production(:template_items) do
-      clause('template_item') { |i| [i] }
-      clause('template_items template_item') { |i0,i1| i0 << i1 }
-    end
-
     production(:template_item) do
-      clause('output') { |e| e }
+      clause('OUT') { |output_string| OutputNode.new(output_string) }
       clause('expression') { |e| e }
-    end
-
-    production(:output) do
-      clause('OUT') { |o| OutputNode.new(o) }
+      clause('COMMENT') { |comment_string| CommentNode.new(comment_string) }
     end
 
     production(:expression) do
       clause('block_expression') { |e| e }
       clause('expr')          { |e| ExpressionNode.new(e) }
-      clause('expr_comment')  { |e| CommentNode.new(e) }
       clause('expr_safe')     { |e| SafeExpressionNode.new(e) }
       clause('partial')       { |e| e }
     end
 
     production(:partial) do
-      clause('EXPRST WHITE? GT WHITE? STRING WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
-      clause('EXPRST WHITE? GT WHITE? IDENT WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
-      clause('EXPRST WHITE? GT WHITE? IDENT WHITE? call WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,e1,nil) }
-      clause('EXPRST WHITE? GT WHITE? IDENT WHITE? lit WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,[],e1) }
-      clause('EXPRST WHITE? GT WHITE? LITERAL WHITE? EXPRE') { |_,_,_,_,e,_,_| PartialNode.new(e,[]) }
-      clause('EXPRST WHITE? GT WHITE? LITERAL WHITE? call WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,e1,nil) }
-      clause('EXPRST WHITE? GT WHITE? LITERAL WHITE? lit WHITE? EXPRE') { |_,_,_,_,e0,_,e1,_,_| PartialNode.new(e0,[],e1) }
+      clause('EXPRSTGT STRING EXPRE') { |_,e,_| PartialNode.new(e,[]) }
+      clause('EXPRSTGT ident_or_literal EXPRE') { |_,e,_| PartialNode.new(e,[]) }
+      clause('EXPRSTGT ident_or_literal WHITE? call EXPRE') { |_,e0,_,e1,_| PartialNode.new(e0,e1,nil) }
+      clause('EXPRSTGT ident_or_literal WHITE? lit EXPRE') { |_,e0,_,e1,_| PartialNode.new(e0,[],e1) }
     end
 
     production(:block_expression) do
-      clause('expr_bl_start template expr_else template expr_bl_end') { |e0,e1,_,e3,e2| BlockExpressionNodeWithElse.new([e0], e1,e2,e3) }
-      clause('expr_bl_start template expr_bl_end') { |e0,e1,e2| BlockExpressionNode.new([e0],e1,e2) }
-      clause('expr_bl_inv_start template expr_else template expr_bl_end') { |e0,e1,_,e3,e2| BlockExpressionNodeWithElse.new([e0], e2,e2,e1) }
-      clause('expr_bl_inv_start template expr_bl_end') { |e0,e1,e2| BlockExpressionNodeWithElse.new([e0],TemplateNode.new([]),e2,e1) }
-    end
-
-    production(:expr_else) do
-      clause('EXPRST WHITE? ELSE WHITE? EXPRE') { |_,_,_,_,_| }
-      clause('EXPRST WHITE? HAT WHITE? EXPRE') { |_,_,_,_,_| }
+      clause('expr_bl_start template EXPRELSE template expr_bl_end') { |test, contents, _, alternate, closer_name| make_block_node(test, contents, alternate, closer_name) }
+      clause('expr_bl_start template expr_bl_end') { |test, contents, closer_name| make_block_node(test, contents, nil, closer_name) }
+      clause('expr_bl_inv_start template EXPRELSE template expr_bl_end') { |test, alternate, _, contents, closer_name| make_block_node(test, contents, alternate, closer_name) }
+      clause('expr_bl_inv_start template expr_bl_end') { |test, alternate, closer_name| make_block_node(test, nil, alternate, closer_name) }
     end
 
     production(:expr) do
       clause('EXPRST expression_contents EXPRE') { |_,e,_| e }
     end
 
-    production(:expr_comment) do
-      clause('EXPRST BANG COMMENT EXPRE') { |_,_,e,_| e }
-    end
-
     production(:expr_safe) do
       clause('TEXPRST expression_contents TEXPRE') { |_,e,_| e }
-      clause('EXPRST AMP expression_contents EXPRE') { |_,_,e,_| e }
+      clause('EXPRSTAMP expression_contents EXPRE') { |_,e,_| e }
     end
 
     production(:expr_bl_start) do
-      clause('EXPRST HASH WHITE? IDENT WHITE? EXPRE') { |_,_,_,e,_,_| push_block CallNode.new(e,[]) }
-      clause('EXPRST HASH WHITE? IDENT WHITE arguments WHITE? EXPRE') { |_,_,_,e,_,a,_,_| push_block CallNode.new(e,a) }
+      clause('EXPRSTHASH IDENT EXPRE') { |_,e,_| CallNode.new(e,[]) }
+      clause('EXPRSTHASH IDENT WHITE arguments EXPRE') { |_,e,_,a,_| CallNode.new(e,a) }
     end
 
     production(:expr_bl_inv_start) do
-      clause('EXPRST HAT WHITE? IDENT WHITE? EXPRE') { |_,_,_,e,_,_| push_block CallNode.new(e,[]) }
-      clause('EXPRST HAT WHITE? IDENT WHITE arguments WHITE? EXPRE') { |_,_,_,e,_,a,_,_| push_block CallNode.new(e,a) }
+      clause('EXPRSTHAT IDENT EXPRE') { |_,e,_| CallNode.new(e,[]) }
+      clause('EXPRSTHAT IDENT WHITE arguments EXPRE') { |_,e,_,a,_| CallNode.new(e,a) }
     end
 
     production(:expr_bl_end) do
-      clause('EXPRST FWSL WHITE? IDENT WHITE? EXPRE') { |_,_,_,e,_,_| pop_block CallNode.new(e,[]) }
+      clause('EXPRSTFWSL IDENT EXPRE') { |_,e,_| e }
     end
 
     production(:expression_contents) do
-      clause('WHITE? call WHITE?') { |_,e,_| e }
-      clause('WHITE? local WHITE?') { |_,e,_| [e] }
+      clause('call') { |e| e }
+      clause('local') { |e| [e] }
     end
 
     production(:call) do
@@ -125,12 +101,12 @@ module FlavourSaver
       clause('hash') { |e| [e] }
     end
 
-    nonempty_list(:argument_list, [:object_path,:lit], :WHITE)
+    nonempty_list(:argument_list, [:object_path, :lit], :WHITE)
 
     production(:lit) do
       clause('string') { |e| e }
       clause('number') { |e| e }
-      clause('boolean') { |e| e }
+      clause('BOOL') { |b| b ? TrueNode.new(true) : FalseNode.new(false) }
     end
 
     production(:string) do
@@ -140,10 +116,6 @@ module FlavourSaver
 
     production(:number) do
       clause('NUMBER') { |n| NumberNode.new(n) }
-    end
-
-    production(:boolean) do
-      clause('BOOL') { |b| b ? TrueNode.new(true) : FalseNode.new(false) }
     end
 
     production(:hash) do
@@ -166,18 +138,13 @@ module FlavourSaver
 
     production(:object) do
       clause('IDENT') { |e| CallNode.new(e, []) }
-      clause('LITERAL') { |e| LiteralCallNode.new(e, []) }
-      clause('parent_call') { |e| e }
+      clause('LITERAL') { |e| LiteralCallNode.new(e, []) } # this is why we can't use ident_or_literal here
+      clause('DOTDOTSLASH+ ident_or_literal') { |backtracks, name| ParentCallNode.new(name, [], backtracks.length) }
     end
 
-    production(:parent_call) do
-      clause('backtrack IDENT') { |i,e| ParentCallNode.new(e,[],i) }
-      clause('backtrack LITERAL') { |i,e| ParentCallNode.new(e,[],i) }
-    end
-
-    production(:backtrack) do
-      clause('DOT DOT FWSL') { |_,_,_| 1 }
-      clause('backtrack DOT DOT FWSL') { |i,_,_,_| i += 1 }
+    production(:ident_or_literal) do
+      clause('IDENT') { |e| e }
+      clause('LITERAL') { |e| e }
     end
 
     finalize

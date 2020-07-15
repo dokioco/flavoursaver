@@ -196,11 +196,15 @@ describe FlavourSaver::Parser do
     end
   end
 
-  describe '{{../foo}}' do
-    subject { FlavourSaver::Parser.parse(FlavourSaver::Lexer.lex('{{../foo}}')) }
+  describe '{{../../foo}}' do
+    subject { FlavourSaver::Parser.parse(FlavourSaver::Lexer.lex('{{../../foo}}')) }
 
     it 'returns a parent call node' do
       items.first.method.first.should be_a(FlavourSaver::ParentCallNode)
+    end
+
+    it 'has the right depth' do
+      items.first.method.first.depth.should == 2
     end
   end
 
