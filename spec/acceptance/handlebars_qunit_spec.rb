@@ -909,6 +909,15 @@ describe FlavourSaver do
       end
     end
 
+    describe 'each with thing with hash args' do # this is a specific bug; previously the second call with hash args would fail
+      let(:template) { "{{#each list}}{{#if thing='fish'}}{{this}}{{/if}}{{/each}}" }
+      let(:context) { { 'list' => [1,2,3] } }
+
+      it 'works correctly' do
+        expect(subject).to eq('123')
+      end
+    end
+
     describe 'log' do
       let(:template) { "{{log blah}}" }
       let(:log) { double(:log) }

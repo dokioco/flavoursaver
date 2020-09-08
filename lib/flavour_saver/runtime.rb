@@ -72,10 +72,7 @@ module FlavourSaver
       when CallNode
         evaluate_call(node)
       when Hash
-        node.each do |key,value|
-          node[key] = evaluate_argument(value)
-        end
-        node
+        node.transform_values { |v| evaluate_argument(v) }
       when CommentNode
         ''
       when PartialNode
