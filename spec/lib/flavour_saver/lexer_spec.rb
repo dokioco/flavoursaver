@@ -255,5 +255,34 @@ describe FlavourSaver::Lexer do
         subject.map(&:value).should == ["asdf ", nil, '', nil, " asdf", nil]
       end
     end
+
+    context "literals" do
+      [
+        ["''", :S_STRING, ''],
+        ['""', :STRING, '' ],
+        ["'squote'", :S_STRING, 'squote'],
+        ['"dquote"', :STRING, 'dquote'],
+        ["0", :NUMBER, "0"],
+        ["1", :NUMBER, "1"],
+        ["12345", :NUMBER, "12345"],
+        ["-12345", :NUMBER, "-12345"],
+        ["1.5", :NUMBER, "1.5"],
+        ["-1.5", :NUMBER, "-1.5"],
+        ["true", :BOOL, true],
+        ["false", :BOOL, false],
+      ].each do |input, output_type, output_value|
+        context "#{input.inspect}" do
+          subject { FlavourSaver::Lexer.lex "asdf {{#{input}}} asdf" }
+
+          it 'has tokens in the correct order' do
+            subject.map(&:type).should == [:OUT, :EXPRST, output_type, :EXPRE, :OUT, :EOS]
+          end
+
+          it 'has correct tokens' do
+            subject.map(&:value).should == ["asdf ", nil, output_value, nil, " asdf", nil]
+          end
+        end
+      end
+    end
   end
 end
