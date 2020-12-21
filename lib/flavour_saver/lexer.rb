@@ -121,13 +121,13 @@ module FlavourSaver
       [ :BOOL, false ]
     end
 
+    rule /(0|-?[1-9][0-9]*(?:\.[0-9]+)?)/, :expression do |n|
+      [ :NUMBER, n ]
+    end
+
     rule /[A-Za-z_\-][A-Za-z0-9_\-]*/, :expression do |name|
       # this is a divergence from FlavourSaver by Dokio -- even the dashed things are treated as methods
       [ :IDENT, name ]
-    end
-
-    rule /([1-9][0-9]*(\.[0-9]+)?)/, :expression do |n|
-      [ :NUMBER, n ]
     end
 
     # COMMENT
