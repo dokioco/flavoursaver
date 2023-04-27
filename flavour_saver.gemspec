@@ -2,8 +2,8 @@
 require File.expand_path('../lib/flavour_saver/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["James Harton"]
-  gem.email         = ["james@resistor.io"]
+  gem.authors       = ["James Harton", "Simon Russell"]
+  gem.email         = ["james@resistor.io", "simon@dokio.co"]
   gem.description   = %q{FlavourSaver is a pure-ruby implimentation of the Handlebars templating language}
   gem.summary       = %q{Handlebars.js without the .js}
   gem.homepage      = "http://jamesotron.github.com/FlavourSaver/"
@@ -16,12 +16,9 @@ Gem::Specification.new do |gem|
   gem.version       = FlavourSaver::VERSION
 
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'guard-rspec'
   gem.add_development_dependency 'rspec-core'
   gem.add_development_dependency 'rspec-mocks'
   gem.add_development_dependency 'rspec-expectations'
-  gem.add_development_dependency 'guard-bundler'
-  gem.add_development_dependency 'activesupport', '~> 4.0.2'
 
   gem.add_dependency 'rltk', '~> 2.2.0'
   gem.add_dependency 'tilt'
