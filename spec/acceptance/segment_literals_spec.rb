@@ -18,7 +18,7 @@ describe FlavourSaver do
       foos << double(:foo)
       expect(foos[1]).to receive(:bar).and_return('two')
 
-      context.stub(:foos).and_return(foos)
+      allow(context).to receive(:foos).and_return(foos)
       expect(subject).to eq 'two'
     end
   end

@@ -72,7 +72,7 @@ describe FlavourSaver::Runtime do
       let(:template) { "{{#foo}}bar{{/foo}}baz" }
 
       it 'snatches up the block contents and skips them from evaluation' do
-        context.stub(:foo)
+        allow(context).to receive(:foo)
         expect(subject.evaluate_node(ast)).to eq 'baz'
       end
     end
@@ -114,7 +114,7 @@ describe FlavourSaver::Runtime do
       let(:template) { "{{hello.world}}" }
 
       it 'calls world on the result of hello' do
-        context.stub_chain(:hello, :world).and_return('hello world')
+        allow(context).to receive_message_chain(:hello, :world).and_return('hello world')
         expect(subject.evaluate_expression(expr)).to eq 'hello world'
       end
     end
@@ -176,7 +176,7 @@ describe FlavourSaver::Runtime do
 
     it 'creates a new runtime' do
       expect(subject).to receive(:create_child_runtime)
-      context.stub(:foo)
+      allow(context).to receive(:foo)
       subject.evaluate_block(block, context)
     end
   end
