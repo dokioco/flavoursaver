@@ -16,9 +16,9 @@ Gem::Specification.new do |gem|
   gem.version       = FlavourSaver::VERSION
 
   gem.add_development_dependency 'rake'
-  gem.add_development_dependency 'rspec-core'
-  gem.add_development_dependency 'rspec-mocks'
-  gem.add_development_dependency 'rspec-expectations'
+  gem.add_development_dependency 'rspec-core', '~> 3'
+  gem.add_development_dependency 'rspec-mocks', '~> 3'
+  gem.add_development_dependency 'rspec-expectations', '~> 3'
 
   gem.add_dependency 'rltk', '~> 2.2.1'
 end
