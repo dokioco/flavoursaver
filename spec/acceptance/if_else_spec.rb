@@ -7,10 +7,10 @@ describe 'Fixture: if_else.hbs' do
 
   it 'renders correctly when given a name' do
     context.name = 'Alan'
-    subject.should == "Say hello to Alan."
+    expect(subject).to eq "Say hello to Alan."
   end
 
   it 'renders correctly when not given a name' do
-    subject.should == "Nobody to say hi to."
+    expect(subject).to eq "Nobody to say hi to."
   end
 end

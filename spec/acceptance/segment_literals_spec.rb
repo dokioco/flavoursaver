@@ -16,10 +16,10 @@ describe FlavourSaver do
       foos = []
       foos << double(:foo)
       foos << double(:foo)
-      foos[1].should_receive(:bar).and_return('two')
+      expect(foos[1]).to receive(:bar).and_return('two')
 
       context.stub(:foos).and_return(foos)
-      subject.should == 'two'
+      expect(subject).to eq 'two'
     end
   end
 end
