@@ -184,15 +184,15 @@ describe FlavourSaver::Lexer do
       end
     end
 
-    describe 'Mishmash of curlys etc' do
-      subject { FlavourSaver::Lexer.lex "asdf { asdf {} { { {{ hello }} }" }
+    describe 'Mishmash of curlys and backslashes etc' do
+      subject { FlavourSaver::Lexer.lex "asdf\\ \\ \\{ { asdf {} { { {{ hello }} }" }
 
       it 'has tokens in the correct order' do
         expect(subject.map(&:type)).to eq [:OUT, :EXPRST, :IDENT, :EXPRE, :OUT, :EOS]
       end
 
       it 'has correct tokens' do
-        expect(subject.map(&:value)).to eq ["asdf { asdf {} { { ", nil, "hello", nil, " }", nil]
+        expect(subject.map(&:value)).to eq ["asdf\\ \\ \\{ { asdf {} { { ", nil, "hello", nil, " }", nil]
       end
     end
 
@@ -253,6 +253,18 @@ describe FlavourSaver::Lexer do
 
       it 'has correct tokens' do
         expect(subject.map(&:value)).to eq ["asdf ", nil, '', nil, " asdf", nil]
+      end
+    end
+
+    describe 'Escaping the template delimiters with \{{' do
+      subject { FlavourSaver::Lexer.lex "\\{{ \\{ \\{{{ fishy asdf \\{{ bobbo }} asdf\\{{" }
+
+      it 'has tokens in the correct order' do
+        expect(subject.map(&:type)).to eq [:OUT, :OUT, :OUT, :OUT, :OUT, :OUT, :OUT, :EOS]
+      end
+
+      it 'has correct tokens' do
+        expect(subject.map(&:value)).to eq ["{{", " \\{ ", "{{", "{ fishy asdf ", "{{", " bobbo }} asdf", "{{", nil]
       end
     end
 

@@ -23,6 +23,14 @@ describe FlavourSaver do
       end
     end
 
+    describe 'escaped' do
+      let(:template) { "hello \\{{world}}" }
+
+      it 'returns "{{foo}}"' do
+        expect(subject).to eq 'hello {{world}}'
+      end
+    end
+
     describe 'compiling with a basic context' do
       let(:template) { "Goodbye\n{{cruel}}\n{{world}}!" }
 

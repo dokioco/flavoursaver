@@ -6,6 +6,10 @@ module FlavourSaver
 
     # DEFAULT
 
+    rule /\\{{/, :default do |output|
+      [ :OUT, "{{" ]
+    end
+
     rule /{{\s*(else|\^)\s*}}/, :default do
       :EXPRELSE
     end
@@ -49,7 +53,7 @@ module FlavourSaver
       :EXPRST
     end
 
-    rule /([^{]|{(?!{))+/m, :default do |output|
+    rule /([^{\\]|{(?!{)|\\(?!{{))+/m, :default do |output|
       [ :OUT, output ]
     end
 
