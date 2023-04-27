@@ -9,7 +9,6 @@ describe FlavourSaver do
   subject { FS.evaluate(template, context) }
   after do
     FS.reset_helpers
-    FS.reset_partials
   end
 
   describe "basic context" do
@@ -663,100 +662,6 @@ describe FlavourSaver do
           end
         end
       end
-    end
-  end
-
-  describe 'partials' do
-    let(:template) { "Dudes: {{#dudes}}{{> dude}}{{/dudes}}" }
-    before do
-      FS.register_partial(:dude, "{{name}} ({{url}}) ")
-    end
-    example do
-      person = Struct.new(:name, :url)
-      context.stub(:dudes).and_return([person.new('Yehuda', 'http://yehuda'), person.new('Alan', 'http://alan')])
-      subject.should == "Dudes: Yehuda (http://yehuda) Alan (http://alan) "
-    end
-  end
-
-  describe 'partials with context' do
-    let(:template) {"Dudes: {{>dude dudes}}"}
-    before do
-      FS.register_partial(:dude, "{{#this}}{{name}} ({{url}}) {{/this}}")
-    end
-    example "Partials can be passed a context" do
-      person = Struct.new(:name, :url)
-      context.stub(:dudes).and_return([person.new('Yehuda', 'http://yehuda'), person.new('Alan', 'http://alan')])
-      subject.should == "Dudes: Yehuda (http://yehuda) Alan (http://alan) "
-    end
-  end
-
-  describe 'partial in a partial' do
-    let(:template) {"Dudes: {{#dudes}}{{>dude}}{{/dudes}}"}
-    before do
-      FS.register_partial(:dude, "{{name}} {{>url}} ")
-      FS.register_partial(:url, "<a href='{{url}}'>{{url}}</a>")
-    end
-    example "Partials can be passed a context" do
-      person = Struct.new(:name, :url)
-      context.stub(:dudes).and_return([person.new('Yehuda', 'http://yehuda'), person.new('Alan', 'http://alan')])
-      subject.should == "Dudes: Yehuda <a href='http://yehuda'>http://yehuda</a> Alan <a href='http://alan'>http://alan</a> "
-    end
-  end
-
-  describe 'rendering undefined partial throws an exception' do
-    let(:template) { "{{> whatever}}" }
-    example do
-      -> { subject }.should raise_error(FS::UnknownPartialException)
-    end
-  end
-
-  describe 'rendering a function partial' do
-    let(:template) { "Dudes: {{#dudes}}{{> dude}}{{/dudes}}" }
-    before do
-      FS.register_partial(:dude) do |context|
-        "#{context.name} (#{context.url}) "
-      end
-    end
-    example do
-      person = Struct.new(:name, :url)
-      context.stub(:dudes).and_return([person.new('Yehuda', 'http://yehuda'), person.new('Alan', 'http://alan')])
-      subject.should == "Dudes: Yehuda (http://yehuda) Alan (http://alan) "
-    end
-  end
-
-  describe 'a partial preceding a selector' do
-    let(:template) { "Dudes: {{>dude}} {{another_dude}}" }
-    before do
-      FS.register_partial(:dude, "{{name}}")
-    end
-    example do
-      context.stub(:name).and_return('Jeepers')
-      context.stub(:another_dude).and_return('Creepers')
-      subject.should == "Dudes: Jeepers Creepers"
-    end
-  end
-
-  describe 'partials with literal paths' do
-    let(:template) { "Dudes: {{> [dude]}}" }
-    before do
-      FS.register_partial(:dude, "{{name}}")
-    end
-    example do
-      context.stub(:name).and_return('Jeepers')
-      context.stub(:another_dude).and_return('Creepers')
-      subject.should == "Dudes: Jeepers"
-    end
-  end
-
-  describe 'partials with string paths' do
-    let(:template) { "Dudes: {{> \"dude/man\"}}" }
-    before do
-      FS.register_partial("dude/man", "{{name}}")
-    end
-    example do
-      context.stub(:name).and_return('Jeepers')
-      context.stub(:another_dude).and_return('Creepers')
-      subject.should == "Dudes: Jeepers"
     end
   end
 

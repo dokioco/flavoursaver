@@ -11,7 +11,6 @@ module FlavourSaver
   autoload :Parser,         'flavour_saver/parser'
   autoload :Runtime,        'flavour_saver/runtime'
   autoload :Helpers,        'flavour_saver/helpers'
-  autoload :Partial,        'flavour_saver/partial'
   autoload :NodeCollection, 'flavour_saver/node_collection'
 
   if defined? Rails
@@ -44,14 +43,6 @@ module FlavourSaver
 
   def reset_helpers
     Helpers.reset_helpers
-  end
-
-  def register_partial(name,content=nil,&block)
-    Partial.register_partial(name,content,&block)
-  end
-
-  def reset_partials
-    Partial.reset_partials
   end
 
   def logger

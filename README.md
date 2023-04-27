@@ -64,7 +64,6 @@ Currently supported:
   - Simple API for adding block helpers.
   - Block expressions with inverse blocks
   - Inverse blocks
-- Partials
 
 ## Helpers
 
@@ -242,23 +241,6 @@ Which could be used like so:
   {{person.name}}
   is male.
 {{/isFemale}}
-```
-
-### Using Partials
-
-Handlebars allows you to register a partial either as a function or a string template with
-the engine before compiling, FlavourSaver retains this behaviour.
-
-To register a partial you call `FlavourSaver.register_partial` with a name and a string:
-
-```ruby
-FlavourSaver.register_partial(:my_partial, "{{this}} is a partial")
-```
-
-You can then use this partial within your templates:
-
-```handlebars
-{{#each people}}{{> my_partial this}}{{/each}}
 ```
 
 ## Contributing

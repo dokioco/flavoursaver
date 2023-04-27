@@ -7,7 +7,6 @@ describe FlavourSaver do
 
   after do
     FS.reset_helpers
-    FS.reset_partials
   end
 
   describe 'segment literal array access' do

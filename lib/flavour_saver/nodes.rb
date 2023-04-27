@@ -160,18 +160,4 @@ module FlavourSaver
       "{{! #{comment.strip}}}"
     end
   end
-
-  class PartialNode < TemplateItemNode
-    value :name, String
-    child :context_call, [CallNode]
-    child :context_value, ValueNode
-
-    def context
-      context_call.any? ? context_call : context_value
-    end
-
-    def to_s
-      "{{>#{name}}}"
-    end
-  end
 end

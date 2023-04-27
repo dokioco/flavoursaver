@@ -75,8 +75,6 @@ module FlavourSaver
         node.transform_values { |v| evaluate_argument(v) }
       when CommentNode
         ''
-      when PartialNode
-        evaluate_partial(node)
       else
         raise UnknownNodeTypeException, "Don't know how to deal with a node of type #{node.class.to_s.inspect}."
       end
@@ -89,21 +87,6 @@ module FlavourSaver
 
     def parent?
       !!@parent
-    end
-
-    def evaluate_partial(node)
-      _context = context
-      _context = evaluate_argument(node.context) if node.context
-      if defined?(::Rails)
-        context.send(:render, :partial => node.name, :object => _context)
-      else
-        partial = Partial.fetch(node.name)
-        if partial.respond_to? :call
-          partial.call(_context)
-        else
-          create_child_runtime(partial).to_s(_context)
-        end
-      end
     end
 
     def evaluate_call(call, context=self.context, &block)
