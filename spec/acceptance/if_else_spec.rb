@@ -1,8 +1,7 @@
-require 'tilt'
 require 'flavour_saver'
 
 describe 'Fixture: if_else.hbs' do
-  subject { Tilt.new(template).render(context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FS.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:context) { Struct.new(:name).new }
   let(:template) { File.expand_path('../../fixtures/if_else.hbs', __FILE__) }
 

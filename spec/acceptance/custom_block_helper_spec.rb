@@ -1,8 +1,7 @@
-require 'tilt'
 require 'flavour_saver'
 
 describe 'Fixture: custom_block_helper.hbs' do
-  subject { Tilt.new(template).render(context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FS.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:template) { File.expand_path('../../fixtures/custom_block_helper.hbs', __FILE__) }
   let(:context)  { double(:context) }
 

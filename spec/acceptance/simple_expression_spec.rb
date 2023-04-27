@@ -1,8 +1,7 @@
-require 'tilt'
 require 'flavour_saver'
 
 describe 'Fixture: simple_expression.hbs' do
-  subject { Tilt.new(template).render(context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FS.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:template) { File.expand_path('../../fixtures/simple_expression.hbs', __FILE__) }
   let(:context)  { double(:context) }
 

@@ -1,8 +1,7 @@
-require 'tilt'
 require 'flavour_saver'
 
 describe "Can't call methods that the context doesn't respond to" do
-  subject { Tilt.new(template).render(context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FS.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:template) { '{{system "ls"}}' }
   let(:context)  { double(:context) }
 
@@ -13,7 +12,7 @@ describe "Can't call methods that the context doesn't respond to" do
 end
 
 describe "Can't eval arbitrary Ruby code" do
-  subject { Tilt.new(template).render(context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FS.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:template) { '{{eval "puts 1 + 1"}}' }
   let(:context)  { double(:context) }
 

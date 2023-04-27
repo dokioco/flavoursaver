@@ -1,8 +1,7 @@
-require 'tilt'
 require 'flavour_saver'
 
 describe 'Fixture: sections.hbs' do
-  subject { Tilt.new(template).render(context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FS.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:context) { Struct.new(:name, :names, :order).new }
   let(:template) { File.expand_path('../../fixtures/sections.hbs', __FILE__) }
 

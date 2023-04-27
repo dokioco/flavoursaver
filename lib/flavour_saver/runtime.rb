@@ -231,32 +231,28 @@ module FlavourSaver
     private
 
     def escape(output)
-      if output.respond_to?(:html_safe) && output.html_safe?
-        # If the string is already marked as html_safe then don't
-        # escape it any further.
-        output
+      # If the string is already marked as html_safe then don't escape it any further.
+      return output if output.respond_to?(:html_safe?) && output.html_safe?
 
-      else
-        output = CGI.escapeHTML(output)
+      output = CGI.escapeHTML(output)
 
-        # We can't just use CGI.escapeHTML because Handlebars does extra
-        # escaping for its JavaScript environment. Thems the breaks.
-        output = output.gsub(/(['"`])/) do |match|
-          case match
-          when "'"
-            "&#x27;"
-          when '"'
-            "&quot;"
-            when '`'
-              "&#x60;"
-            end
+      # We can't just use CGI.escapeHTML because Handlebars does extra
+      # escaping for its JavaScript environment. Thems the breaks.
+      output = output.gsub(/(['"`])/) do |match|
+        case match
+        when "'"
+          "&#x27;"
+        when '"'
+          "&quot;"
+        when '`'
+          "&#x60;"
         end
-
-        # Mark it as already escaped if we're in Rails
-        output.html_safe if output.respond_to? :html_safe
-
-        output
       end
+
+      # Mark it as already escaped if we're in Rails
+      output.html_safe if output.respond_to?(:html_safe)
+
+      output
     end
   end
 end

@@ -3,7 +3,6 @@ PATH
   specs:
     flavour_saver (0.5.0.pre.dokio)
       rltk (~> 2.2.0)
-      tilt
 
 GEM
   remote: https://rubygems.org/
@@ -17,7 +16,6 @@ GEM
     rspec-expectations (2.14.3)
       diff-lcs (>= 1.1.3, < 2.0)
     rspec-mocks (2.14.3)
-    tilt (2.0.1)
 
 PLATFORMS
   ruby

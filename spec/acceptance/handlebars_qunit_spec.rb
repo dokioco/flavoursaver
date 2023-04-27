@@ -2,10 +2,7 @@
 # to run against FlavourSaver.  Yes, this is a more brittle way of
 # doing it.
 
-require 'active_support'
-ActiveSupport::SafeBuffer
-
-require 'flavour_saver'
+require 'spec_helper'
 
 describe FlavourSaver do
   let(:context) { double(:context) }
@@ -199,7 +196,10 @@ describe FlavourSaver do
       let(:template) { "{{awesome}}" }
 
       it "shouldn't be escaped" do
-        context.stub(:awesome).and_return("&\"\\<>".html_safe)
+        safe_string = "&\"\\<>"
+        allow(safe_string).to receive(:html_safe?).and_return(true)
+
+        context.stub(:awesome).and_return(safe_string)
         subject.should == "&\"\\<>"
       end
     end

@@ -1,8 +1,7 @@
-require 'tilt'
 require 'flavour_saver'
 
 describe 'Fixture: backtrack.hbs' do
-  subject { Tilt.new(template).render(context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FS.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:template) { File.expand_path('../../fixtures/backtrack.hbs', __FILE__) }
   let(:context) { Struct.new(:person,:company).new }
 
