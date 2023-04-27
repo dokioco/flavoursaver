@@ -1,12 +1,12 @@
 require 'flavour_saver'
 
 describe FlavourSaver do
-  subject { FS.evaluate(template, context) }
+  subject { FlavourSaver.evaluate(template, context) }
 
   let(:context) { double(:context) }
 
   after do
-    FS.reset_helpers
+    FlavourSaver.reset_helpers
   end
 
   describe 'segment literal array access' do

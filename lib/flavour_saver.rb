@@ -53,5 +53,3 @@ module FlavourSaver
     @logger=logger
   end
 end
-
-FS = FlavourSaver

@@ -136,10 +136,10 @@ Writes log output. The destination can be changed by assigning a `Logger` instan
 
 ### Adding additional helpers
 
-Additional helpers can easy be added by calling `FS.register_helper`, eg:
+Additional helpers can easy be added by calling `FlavourSaver.register_helper`, eg:
 
 ```ruby
-FS.register_helper(:whom) { 'world' }
+FlavourSaver.register_helper(:whom) { 'world' }
 ```
 
 Now if you were to render the following template:
@@ -161,7 +161,7 @@ the helper implementation can call `yield.contents` one or more times, with an
 optional argument setting the context of the block execution:
 
 ```ruby
-FS.register_helper(:three_times) do
+FlavourSaver.register_helper(:three_times) do
   yield.contents
   yield.contents
   yield.contents
@@ -187,7 +187,7 @@ would result in the following output:
 Implementing a simple iterator is dead easy:
 
 ```ruby
-FS.register_helper(:list_people) do |people|
+FlavourSaver.register_helper(:list_people) do |people|
   people.each do |person|
     yield.contents person
   end
@@ -208,7 +208,7 @@ Block helpers can also contain an `{{else}}` statement, which, when used creates
 a second set of block contents (called `inverse`) which can be yielded to the output:
 
 ```ruby
-FS.register_helper(:isFemale) do |person,&block|
+FlavourSaver.register_helper(:isFemale) do |person,&block|
   if person.sex == 'female'
     block.call.contents
   else
@@ -228,7 +228,7 @@ def isFemale(person)
   end
 end
 
-FS.register_helper(method(:isFemale))
+FlavourSaver.register_helper(method(:isFemale))
 ```
 
 Which could be used like so:

@@ -6,13 +6,13 @@ require 'spec_helper'
 
 describe FlavourSaver do
   let(:context) { double(:context) }
-  subject { FS.evaluate(template, context) }
+  subject { FlavourSaver.evaluate(template, context) }
   after do
-    FS.reset_helpers
+    FlavourSaver.reset_helpers
   end
 
   describe "basic context" do
-    before { FS.register_helper(:link_to) { "<a>#{context}</a>" } }
+    before { FlavourSaver.register_helper(:link_to) { "<a>#{context}</a>" } }
 
     describe 'most basic' do
       let(:template) { "{{foo}}" }
@@ -311,7 +311,7 @@ describe FlavourSaver do
       end
 
       describe 'this keyword in helpers' do
-        before { FS.register_helper(:foo) { |value| "bar #{value}" } }
+        before { FlavourSaver.register_helper(:foo) { |value| "bar #{value}" } }
 
         describe 'this keyword in arguments' do
           let(:template) { "{{#goodbyes}}{{foo this}}{{/goodbyes}}" }
@@ -450,7 +450,7 @@ describe FlavourSaver do
     describe 'helper with complex lookup' do
       let(:template) {"{{#goodbyes}}{{{link ../prefix}}}{{/goodbyes}}"}
       before do
-        FS.register_helper(:link) do |prefix|
+        FlavourSaver.register_helper(:link) do |prefix|
           "<a href='#{prefix}/#{url}'>#{text}</a>"
         end
       end
@@ -469,7 +469,7 @@ describe FlavourSaver do
     describe 'helper with complex lookup expression' do
       let(:template) { "{{#goodbyes}}{{../name}}{{/goodbyes}}" }
       before do
-        FS.register_helper(:goodbyes) do |&b|
+        FlavourSaver.register_helper(:goodbyes) do |&b|
           ["Goodbye", "goodbye", "GOODBYE"].map do |bye|
             "#{bye} #{b.call.contents}! "
           end.join('')
@@ -485,7 +485,7 @@ describe FlavourSaver do
     describe 'helper with complex lookup and nested template' do
       let(:template) { "{{#goodbyes}}{{#link ../prefix}}{{text}}{{/link}}{{/goodbyes}}" }
       before do
-        FS.register_helper(:link) do |prefix,&b|
+        FlavourSaver.register_helper(:link) do |prefix,&b|
           "<a href='#{prefix}/#{url}'>#{b.call.contents}</a>"
         end
       end
@@ -517,7 +517,7 @@ describe FlavourSaver do
     describe 'block helper' do
       let(:template) { "{{#goodbyes}}{{text}}! {{/goodbyes}}cruel {{world}}!" }
       before do
-        FS.register_helper(:goodbyes) do |&block|
+        FlavourSaver.register_helper(:goodbyes) do |&block|
           block.call.contents Struct.new(:text).new('GOODBYE')
         end
       end
@@ -530,7 +530,7 @@ describe FlavourSaver do
     describe 'block helper staying in the same context' do
       let(:template) { "{{#form}}<p>{{name}}</p>{{/form}}" }
       before do
-        FS.register_helper(:form) do |&block|
+        FlavourSaver.register_helper(:form) do |&block|
           "<form>#{block.call.contents}</form>"
         end
       end
@@ -544,7 +544,7 @@ describe FlavourSaver do
     describe 'block helper should have context in this' do
       let(:template) { "<ul>{{#people}}<li>{{#link}}{{name}}{{/link}}</li>{{/people}}</ul>" }
       before do
-        FS.register_helper(:link) do |&block|
+        FlavourSaver.register_helper(:link) do |&block|
           "<a href=\"/people/#{this.id}\">#{block.call.contents}</a>"
         end
       end
@@ -565,7 +565,7 @@ describe FlavourSaver do
     describe 'block helper passing a new context' do
       let(:template) { "{{#form yehuda}}<p>{{name}}</p>{{/form}}" }
       before do
-        FS.register_helper(:form) do |whom,&block|
+        FlavourSaver.register_helper(:form) do |whom,&block|
           "<form>#{block.call.contents whom}</form>"
         end
       end
@@ -578,7 +578,7 @@ describe FlavourSaver do
     describe 'block helper passing a complex path context' do
       let(:template) { "{{#form yehuda/cat}}<p>{{name}}</p>{{/form}}" }
       before do
-        FS.register_helper(:form) do |context,&block|
+        FlavourSaver.register_helper(:form) do |context,&block|
           "<form>#{block.call.contents context}</form>"
         end
       end
@@ -594,10 +594,10 @@ describe FlavourSaver do
     describe 'nested block helpers' do
       let(:template) { "{{#form yehuda}}<p>{{name}}</p>{{#link}}Hello{{/link}}{{/form}}" }
       before do
-        FS.register_helper(:link) do |&block|
+        FlavourSaver.register_helper(:link) do |&block|
           "<a href='#{name}'>#{block.call.contents}</a>"
         end
-        FS.register_helper(:form) do |context,&block|
+        FlavourSaver.register_helper(:form) do |context,&block|
           "<form>#{block.call.contents context}</form>"
         end
       end
@@ -628,7 +628,7 @@ describe FlavourSaver do
     describe 'block helpers with inverted sections' do
       let (:template) { "{{#list people}}{{name}}{{^}}<em>Nobody's here</em>{{/list}}" }
       before do
-        FS.register_helper(:list) do |context,&block|
+        FlavourSaver.register_helper(:list) do |context,&block|
           if context.any?
             "<ul>" +
               context.map { |e| "<li>#{block.call.contents e}</li>" }.join('') +
@@ -670,7 +670,7 @@ describe FlavourSaver do
     describe 'simple literals work' do
       let(:template) { "Message: {{hello \"world\" 12 true false}}" }
       before do
-        FS.register_helper(:hello) do |param,times,bool1,bool2|
+        FlavourSaver.register_helper(:hello) do |param,times,bool1,bool2|
           times = "NaN" unless times.is_a? Integer
           bool1 = "NaB" unless bool1 == true
           bool2 = "NaB" unless bool2 == false
@@ -692,7 +692,7 @@ describe FlavourSaver do
     describe 'escaping a string is possible' do
       let(:template) { 'Message: {{{hello "\"world\""}}}' }
       before do
-        FS.register_helper(:hello) do |param|
+        FlavourSaver.register_helper(:hello) do |param|
           "Hello #{param}"
         end
       end
@@ -704,7 +704,7 @@ describe FlavourSaver do
     describe 'string work with ticks' do
       let(:template) { 'Message: {{{hello "Alan\'s world"}}}' }
       before do
-        FS.register_helper(:hello) do |param|
+        FlavourSaver.register_helper(:hello) do |param|
           "Hello #{param}"
         end
       end
@@ -718,7 +718,7 @@ describe FlavourSaver do
   describe 'multi-params' do
     describe 'simple multi-params work' do
       let(:template) { "Message: {{goodbye cruel world}}" }
-      before { FS.register_helper(:goodbye) { |cruel,world| "Goodbye #{cruel} #{world}" } }
+      before { FlavourSaver.register_helper(:goodbye) { |cruel,world| "Goodbye #{cruel} #{world}" } }
       example do
         context.stub(:cruel).and_return('cruel')
         context.stub(:world).and_return('world')
@@ -728,7 +728,7 @@ describe FlavourSaver do
 
     describe 'block multi-params' do
       let(:template) { "Message: {{#goodbye cruel world}}{{greeting}} {{adj}} {{noun}}{{/goodbye}}" }
-      before { FS.register_helper(:goodbye) { |adj,noun,&b| b.call.contents Struct.new(:greeting,:adj,:noun).new('Goodbye', adj, noun) } }
+      before { FlavourSaver.register_helper(:goodbye) { |adj,noun,&b| b.call.contents Struct.new(:greeting,:adj,:noun).new('Goodbye', adj, noun) } }
       example do
         context.stub(:cruel).and_return('cruel')
         context.stub(:world).and_return('world')
@@ -826,8 +826,8 @@ describe FlavourSaver do
     describe 'log' do
       let(:template) { "{{log blah}}" }
       let(:log) { double(:log) }
-      before { FS.logger = log }
-      after  { FS.logger = nil }
+      before { FlavourSaver.logger = log }
+      after  { FlavourSaver.logger = nil }
       example do
         context.stub(:blah).and_return('whee')
         log.should_receive(:debug).with('FlavourSaver: whee')

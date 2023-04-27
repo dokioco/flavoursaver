@@ -1,7 +1,7 @@
 require 'flavour_saver'
 
 describe 'Fixture: multi_level_with.hbs' do
-  subject { FS.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FlavourSaver.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:template) { File.expand_path('../../fixtures/multi_level_with.hbs', __FILE__) }
   let(:context) { Struct.new(:person,:company).new }
 
