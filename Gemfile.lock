@@ -77,6 +77,3 @@ DEPENDENCIES
   rspec-core
   rspec-expectations
   rspec-mocks
-
-BUNDLED WITH
-   1.17.3
