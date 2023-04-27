@@ -236,7 +236,7 @@ describe FlavourSaver::Parser do
     subject { FlavourSaver::Parser.parse(FlavourSaver::Lexer.lex('{{/foo}}')) }
 
     it 'raises a syntax error' do
-      expect { subject }.to raise_error
+      expect { subject }.to raise_error(RLTK::NotInLanguage)
     end
   end
 
@@ -244,7 +244,7 @@ describe FlavourSaver::Parser do
     subject { FlavourSaver::Parser.parse(FlavourSaver::Lexer.lex('{{#foo}}')) }
 
     it 'raises a syntax error' do
-      expect { subject }.to raise_error
+      expect { subject }.to raise_error(RLTK::NotInLanguage)
     end
   end
 
@@ -260,7 +260,7 @@ describe FlavourSaver::Parser do
     subject { FlavourSaver::Parser.parse(FlavourSaver::Lexer.lex('{{#foo}}{{#bar}}{{/foo}}')) }
 
     it 'raises a syntax error' do
-      expect { subject }.to raise_error
+      expect { subject }.to raise_error(FlavourSaver::Parser::UnbalancedBlockError)
     end
   end
 

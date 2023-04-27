@@ -685,7 +685,7 @@ describe FlavourSaver do
     describe 'using a quote in the middle of a parameter raises an error' do
       let(:template) { "Message: {{hello wo\"rld\"}}" }
       example do
-        expect { subject }.to raise_error
+        expect { subject }.to raise_error(RLTK::NotInLanguage)
       end
     end
 
