@@ -57,6 +57,8 @@ module FlavourSaver
         evaluate_block(node).to_s
       when OutputNode
         node.value
+      when RawNode
+        evaluate_node(node.output)
       when NumberNode
         if node.value =~ /\./
           node.value.to_f
@@ -75,8 +77,6 @@ module FlavourSaver
         node.transform_values { |v| evaluate_argument(v) }
       when CommentNode
         ''
-      when PartialNode
-        evaluate_partial(node)
       else
         raise UnknownNodeTypeException, "Don't know how to deal with a node of type #{node.class.to_s.inspect}."
       end
@@ -89,21 +89,6 @@ module FlavourSaver
 
     def parent?
       !!@parent
-    end
-
-    def evaluate_partial(node)
-      _context = context
-      _context = evaluate_argument(node.context) if node.context
-      if defined?(::Rails)
-        context.send(:render, :partial => node.name, :object => _context)
-      else
-        partial = Partial.fetch(node.name)
-        if partial.respond_to? :call
-          partial.call(_context)
-        else
-          create_child_runtime(partial).to_s(_context)
-        end
-      end
     end
 
     def evaluate_call(call, context=self.context, &block)
@@ -231,32 +216,28 @@ module FlavourSaver
     private
 
     def escape(output)
-      if output.respond_to?(:html_safe) && output.html_safe?
-        # If the string is already marked as html_safe then don't
-        # escape it any further.
-        output
+      # If the string is already marked as html_safe then don't escape it any further.
+      return output if output.respond_to?(:html_safe?) && output.html_safe?
 
-      else
-        output = CGI.escapeHTML(output)
+      output = CGI.escapeHTML(output)
 
-        # We can't just use CGI.escapeHTML because Handlebars does extra
-        # escaping for its JavaScript environment. Thems the breaks.
-        output = output.gsub(/(['"`])/) do |match|
-          case match
-          when "'"
-            "&#x27;"
-          when '"'
-            "&quot;"
-            when '`'
-              "&#x60;"
-            end
+      # We can't just use CGI.escapeHTML because Handlebars does extra
+      # escaping for its JavaScript environment. Thems the breaks.
+      output = output.gsub(/(['"`])/) do |match|
+        case match
+        when "'"
+          "&#x27;"
+        when '"'
+          "&quot;"
+        when '`'
+          "&#x60;"
         end
-
-        # Mark it as already escaped if we're in Rails
-        output.html_safe if output.respond_to? :html_safe
-
-        output
       end
+
+      # Mark it as already escaped if we're in Rails
+      output.html_safe if output.respond_to?(:html_safe)
+
+      output
     end
   end
 end

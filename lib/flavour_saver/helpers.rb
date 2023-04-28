@@ -40,7 +40,7 @@ module FlavourSaver
       end
 
       def log(message)
-        FS.logger.debug("FlavourSaver: #{message}")
+        FlavourSaver.logger.debug("FlavourSaver: #{message}")
         ''
       end
     end

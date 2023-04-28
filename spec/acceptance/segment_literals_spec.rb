@@ -1,13 +1,12 @@
 require 'flavour_saver'
 
 describe FlavourSaver do
-  subject { FS.evaluate(template, context) }
+  subject { FlavourSaver.evaluate(template, context) }
 
   let(:context) { double(:context) }
 
   after do
-    FS.reset_helpers
-    FS.reset_partials
+    FlavourSaver.reset_helpers
   end
 
   describe 'segment literal array access' do
@@ -17,10 +16,10 @@ describe FlavourSaver do
       foos = []
       foos << double(:foo)
       foos << double(:foo)
-      foos[1].should_receive(:bar).and_return('two')
+      expect(foos[1]).to receive(:bar).and_return('two')
 
-      context.stub(:foos).and_return(foos)
-      subject.should == 'two'
+      allow(context).to receive(:foos).and_return(foos)
+      expect(subject).to eq 'two'
     end
   end
 end

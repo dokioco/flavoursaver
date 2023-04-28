@@ -1,8 +1,7 @@
-require 'tilt'
 require 'flavour_saver'
 
 describe 'Fixture: custom_helper.hbs' do
-  subject { Tilt.new(template).render(context).gsub(/[\s\r\n]+/, ' ').strip }
+  subject { FlavourSaver.evaluate_file(template, context).gsub(/[\s\r\n]+/, ' ').strip }
   let(:template) { File.expand_path('../../fixtures/custom_helper.hbs', __FILE__) }
   let(:context)  { double(:context) }
 
@@ -10,6 +9,6 @@ describe 'Fixture: custom_helper.hbs' do
     FlavourSaver.register_helper(:say_what_again) do
       'What?'
     end
-    subject.should == "What?"
+    expect(subject).to eq "What?"
   end
 end

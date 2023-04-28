@@ -6,8 +6,17 @@ module FlavourSaver
 
     # DEFAULT
 
+    rule /\\{{/, :default do |output|
+      [ :OUT, "{{" ]
+    end
+
     rule /{{\s*(else|\^)\s*}}/, :default do
       :EXPRELSE
+    end
+
+    rule /{{{{#\s*raw\s*}}}}/, :default do
+      push_state :raw
+      :RAWST
     end
 
     rule /{{{\s*/, :default do
@@ -49,7 +58,7 @@ module FlavourSaver
       :EXPRST
     end
 
-    rule /([^{]|{(?!{))+/m, :default do |output|
+    rule /([^{\\]|{(?!{)|\\(?!{{))+/m, :default do |output|
       [ :OUT, output ]
     end
 
@@ -138,6 +147,17 @@ module FlavourSaver
 
     rule /([^}]|}(?!}))+/m, :comment do |comment|
       [ :COMMENT, comment ]
+    end
+
+    # RAW BLOCK
+
+    rule /{{{{\/\s*raw\s*}}}}/, :raw do
+      pop_state
+      :RAWE
+    end
+
+    rule /([^{]|{(?!{{{\/\s*raw\s*}}}}))+/m, :raw do |output|
+      [ :OUT, output ]
     end
 
     # STRING

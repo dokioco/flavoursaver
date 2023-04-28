@@ -33,21 +33,18 @@ module FlavourSaver
     production(:template_item) do
       clause('OUT') { |output_string| OutputNode.new(output_string) }
       clause('expression') { |e| e }
+      clause('raw') { |raw| raw }
       clause('COMMENT') { |comment_string| CommentNode.new(comment_string) }
+    end
+
+    production(:raw) do
+      clause('RAWST OUT RAWE') { |_, output_string, _| RawNode.new(OutputNode.new(output_string)) }
     end
 
     production(:expression) do
       clause('block_expression') { |e| e }
       clause('expr')          { |e| ExpressionNode.new(e) }
       clause('expr_safe')     { |e| SafeExpressionNode.new(e) }
-      clause('partial')       { |e| e }
-    end
-
-    production(:partial) do
-      clause('EXPRSTGT STRING EXPRE') { |_,e,_| PartialNode.new(e,[]) }
-      clause('EXPRSTGT ident_or_literal EXPRE') { |_,e,_| PartialNode.new(e,[]) }
-      clause('EXPRSTGT ident_or_literal WHITE? call EXPRE') { |_,e0,_,e1,_| PartialNode.new(e0,e1,nil) }
-      clause('EXPRSTGT ident_or_literal WHITE? lit EXPRE') { |_,e0,_,e1,_| PartialNode.new(e0,[],e1) }
     end
 
     production(:block_expression) do
