@@ -57,6 +57,8 @@ module FlavourSaver
         evaluate_block(node).to_s
       when OutputNode
         node.value
+      when RawNode
+        evaluate_node(node.output)
       when NumberNode
         if node.value =~ /\./
           node.value.to_f

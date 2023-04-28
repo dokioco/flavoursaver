@@ -268,6 +268,18 @@ describe FlavourSaver::Lexer do
       end
     end
 
+    describe 'Raw blocks with {{{{#raw}}}}{{{{/raw}}}}' do
+      subject { FlavourSaver::Lexer.lex "some stuff {{{{#raw}}}} this is not {{ a template }}{{{{/raw}}}} some more stuff" }
+
+      it 'has tokens in the correct order' do
+        expect(subject.map(&:type)).to eq [:OUT, :RAWST, :OUT, :RAWE, :OUT, :EOS]
+      end
+
+      it 'has correct tokens' do
+        expect(subject.map(&:value)).to eq ["some stuff ", nil, " this is not {{ a template }}", nil, " some more stuff", nil]
+      end
+    end
+
     context "literals" do
       [
         ["''", :S_STRING, ''],

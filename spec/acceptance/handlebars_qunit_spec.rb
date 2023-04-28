@@ -31,6 +31,14 @@ describe FlavourSaver do
       end
     end
 
+    describe 'raw' do
+      let(:template) { "hello {{{{#raw}}}}happy {{world}}{{{{/raw}}}}" }
+
+      it 'returns "{{foo}}"' do
+        expect(subject).to eq 'hello happy {{world}}'
+      end
+    end
+
     describe 'compiling with a basic context' do
       let(:template) { "Goodbye\n{{cruel}}\n{{world}}!" }
 

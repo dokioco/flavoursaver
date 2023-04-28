@@ -14,6 +14,11 @@ module FlavourSaver
       :EXPRELSE
     end
 
+    rule /{{{{#\s*raw\s*}}}}/, :default do
+      push_state :raw
+      :RAWST
+    end
+
     rule /{{{\s*/, :default do
       push_state :expression
       :TEXPRST
@@ -142,6 +147,17 @@ module FlavourSaver
 
     rule /([^}]|}(?!}))+/m, :comment do |comment|
       [ :COMMENT, comment ]
+    end
+
+    # RAW BLOCK
+
+    rule /{{{{\/\s*raw\s*}}}}/, :raw do
+      pop_state
+      :RAWE
+    end
+
+    rule /([^{]|{(?!{{{\/\s*raw\s*}}}}))+/m, :raw do |output|
+      [ :OUT, output ]
     end
 
     # STRING

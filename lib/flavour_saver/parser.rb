@@ -33,7 +33,12 @@ module FlavourSaver
     production(:template_item) do
       clause('OUT') { |output_string| OutputNode.new(output_string) }
       clause('expression') { |e| e }
+      clause('raw') { |raw| raw }
       clause('COMMENT') { |comment_string| CommentNode.new(comment_string) }
+    end
+
+    production(:raw) do
+      clause('RAWST OUT RAWE') { |_, output_string, _| RawNode.new(OutputNode.new(output_string)) }
     end
 
     production(:expression) do

@@ -232,6 +232,21 @@ describe FlavourSaver::Parser do
     end
   end
 
+  describe '{{{{#raw}}}} raw {{ stuff {{{{/raw}}}}' do
+    subject { FlavourSaver::Parser.parse(FlavourSaver::Lexer.lex('{{{{#raw}}}} raw {{ stuff {{{{/raw}}}}')) }
+
+    it 'has a block start and end' do
+      expect(items.map(&:class)).to eq [ FlavourSaver::RawNode ]
+    end
+
+    describe '#contents' do
+      it 'contains a single output node' do
+        expect(items.first.output).to be_a(FlavourSaver::OutputNode)
+        expect(items.first.output.value).to eq ' raw {{ stuff '
+      end
+    end
+  end
+
   describe '{{/foo}}' do
     subject { FlavourSaver::Parser.parse(FlavourSaver::Lexer.lex('{{/foo}}')) }
 

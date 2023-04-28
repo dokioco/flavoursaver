@@ -160,4 +160,12 @@ module FlavourSaver
       "{{! #{comment.strip}}}"
     end
   end
+
+  class RawNode < TemplateItemNode
+    child :output, OutputNode
+
+    def to_s
+      "{{{{#raw}}}}#{output}{{{{/raw}}}}"
+    end
+  end
 end
